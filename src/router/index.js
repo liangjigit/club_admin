@@ -124,6 +124,8 @@ const MemberIndex = () =>
   import(/* webpackChunkName: "member" */ "@/pages/member/index");
 const ActivityIndex = () =>
   import(/* webpackChunkName: "member" */ "@/pages/member/activity");
+const ActivityList = () =>
+	  import(/* webpackChunkName: "member" */ "@/pages/member/activityList");
 const IntegralRule = () =>
   import(/* webpackChunkName: "member" */ "@/pages/member/integralRule");
 const IntegralFlow = () =>
@@ -204,6 +206,15 @@ const router = new Router({
               component: ActivityIndex,
               icon: "none"
             },
+						{
+						  path: "/member/activityList",
+						  name: "activityList",
+						  meta: {
+						    title: "活动列表"
+						  },
+						  component: ActivityList,
+						  icon: "none"
+						},
             {
               path: "/member/integralRule",
               name: "IntegralRule",

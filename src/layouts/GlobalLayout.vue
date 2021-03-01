@@ -87,6 +87,7 @@ export default {
     }
   },
   beforeCreate() {
+		// console.log(this.$router.options.routes[1].children)
     menuData = this.$router.options.routes.find(item => item.path === "/")
       .children;
   }
