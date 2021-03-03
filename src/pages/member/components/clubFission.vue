@@ -1,8 +1,8 @@
 <template>
 	<a-modal :width="800" v-model="clubFissionVisible" :title="'邀请好友参加活动'" cancelText="取消" okText="保存" :centered="true"
-	 :keyboard="false" :maskClosable="false" :closable="false" :confirmLoading="loading" @ok="clubFissionSubmit" @cancel="cancelCallback"
+	 :keyboard="false" :maskClosable="false" :closable="false" :confirmLoading="loading" @ok="verifyData" @cancel="cancelCallback"
 	 :destroyOnClose="true">
-		<a-form-model :model="formData" :rules="rules">
+		<a-form-model ref="ruleForm" :model="formData" :rules="rules">
 			<div class="title">基础设置</div>
 			<div class="basic">
 				<div>
@@ -16,11 +16,11 @@
 					活动时间：
 					<a-form-model-item label="开始时间" required prop="startDate">
 						<a-date-picker v-model="formData.startDate" :show-time="showTimeOptions" type="date" placeholder="选择开始时间" style="width: 50%;"
-						 :allowClear="false" format="YYYY-MM-DD HH:mm"/>
+						 :allowClear="false" format="YYYY-MM-DD HH:mm:ss" @change="getStartTime" />
 					</a-form-model-item>
 					<a-form-model-item label="结束时间" required prop="endDate">
 						<a-date-picker v-model="formData.endDate" :show-time="showTimeOptions" type="date" placeholder="选择结束时间" style="width: 50%;"
-						 :allowClear="false" format="YYYY-MM-DD HH:mm"/>
+						 :allowClear="false" format="YYYY-MM-DD HH:mm:ss" @change="getEndTime" />
 					</a-form-model-item>
 				</div>
 				<div>
@@ -28,16 +28,16 @@
 						<div>好友分享标题：
 							<a-input placeholder="输入好友分享标题(限制20字符)" :maxLength="20" style="width: 30%;" v-model="friend.title" />
 						</div>
-						<upload-file @uploadPic="uploadPic" :img="friend.image" v-model="friend.image"></upload-file>
+						<upload-file @uploadPic="uploadFPic" :img="friend.image" v-model="friend.image"></upload-file>
 					</a-form-model-item>
 					<a-form-model-item label="朋友圈分享" extra="png/jpg格式，2M以内">
 						<div>朋友圈分享标题：
 							<a-input placeholder="输入朋友圈分享标题(限制20字符)" :maxLength="20" style="width: 30%;" v-model="friendC.title" />
 						</div>
-						<upload-file @uploadPic="uploadPic" :img="friendC.image" v-model="friendC.image"></upload-file>
+						<upload-file @uploadPic="uploadFCPic" :img="friendC.image" v-model="friendC.image"></upload-file>
 					</a-form-model-item>
 					<a-form-model-item label="活动主题页背景" extra="png/jpg格式，2M以内">
-						<upload-file @uploadPic="uploadPic" :img="activeBackImage" v-model="activeBackImage"></upload-file>
+						<upload-file @uploadPic="uploadBPic" :img="activeBackImage" v-model="activeBackImage"></upload-file>
 					</a-form-model-item>
 				</div>
 				<div>权益内容：
@@ -49,127 +49,37 @@
 				<div class="award-set">新会员奖励:</div>
 				<div class="award-set-detail">
 					<div>
-						<a-form-model-item label="奖励名称" ref="newAwardName" prop="newAwardName">
-							<a-input placeholder="输入奖励名称(限制10字符)" :maxLength="10" style="width: 30%;" v-model="formData.newAwardName" @blur="()=>{$refs.newAwardName.onFieldBlur()}" />
+						<a-form-model-item label="奖励类型">
+							<a-radio-group v-model="formData.newAward" @change="changeNewAward" v-if="formData.newCouponId == null">
+								<a-radio value="1">
+									优惠券
+								</a-radio>
+								<a-radio value="2">
+									积分
+								</a-radio>
+								<a-radio value="3">
+									礼品卡
+								</a-radio>
+							</a-radio-group>
+							<p style="color: red;" v-if="formData.newTemplateList">{{formData.newTemplateList.couponName}}</p>
 						</a-form-model-item>
 					</div>
-					<a-form-model-item label="新会员奖励图片" extra="png/jpg格式，2M以内">
-						<upload-file @uploadPic="uploadPic" :img="inviteForm.image" v-model="inviteForm.image"></upload-file>
-					</a-form-model-item>
-					<div>奖励类型：
-						<a-radio-group v-model="awardValue" @change="changeAward">
-							<a-radio :value="1">
-								积分
-							</a-radio>
-							<a-radio :value="2">
-								优惠券/礼品卡
-							</a-radio>
-						</a-radio-group>
+					<div v-if="formData.newCouponId == null">
+					<div v-show="formData.newAward == 1 || formData.newAward == 3">
+						<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"
+						 v-model="formData.newPCH" />
+						<a-button type="primary" @click="addNewId" style="margin-left:10px">
+							添加
+						</a-button>
 					</div>
-					<div v-show="awardValue == 1">
-						<a-input placeholder="输入积分" :maxLength="50" style="width: 50%;" />
+					<div v-show="formData.newAward == 2">
+						<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="formData.newJF" />
 					</div>
-					<div v-show="awardValue == 2">
-						<a-input placeholder="输入批次号" :maxLength="50" style="width: 50%;" />
 					</div>
 				</div>
-				<div class="award-set">老会员奖励</div>
-				<div class="award-set-detail">
-					奖励领取是否限次：
-					<a-switch checked-children="限次" un-checked-children="不限次" v-model="isShowClub" />
-				</div>
-				<div class="award-set-detail" v-if="awardOne">
-					<div>
-						奖励名称：
-						<a-input placeholder="输入奖励名称" :maxLength="50" style="width: 20%;" />
-					</div>
-					<a-form-model-item label="新会员奖励图片" extra="png/jpg格式，2M以内">
-						<upload-file @uploadPic="uploadPic" :img="inviteForm.image" v-model="inviteForm.image"></upload-file>
-					</a-form-model-item>
-					<div>人数：
-						<a-input placeholder="输入人数" :maxLength="50" style="width: 20%;" />
-					</div>
-					<div>奖励类型：
-						<a-radio-group v-model="awardOneValue" @change="changeAward">
-							<a-radio :value="1">
-								积分
-							</a-radio>
-							<a-radio :value="2">
-								卡券
-							</a-radio>
-						</a-radio-group>
-					</div>
-					<div v-show="awardOneValue == 1">
-						<a-input placeholder="输入积分" :maxLength="50" style="width: 50%;" />
-						&nbsp;&nbsp;
-						<a-icon type="plus-circle" @click="awardTwo = true" />
-					</div>
-					<div v-show="awardOneValue == 2">
-						<a-input placeholder="输入批次号" :maxLength="50" style="width: 50%;" />
-						&nbsp;&nbsp;
-						<a-icon type="plus-circle" @click="awardTwo = true" />
-					</div>
-				</div>
-				<div class="award-set-detail" v-if="awardOne && awardTwo">
-					<div>
-						奖励名称：
-						<a-input placeholder="输入奖励名称" :maxLength="50" style="width: 20%;" />
-					</div>
-					<a-form-model-item label="新会员奖励图片" extra="png/jpg格式，2M以内">
-						<upload-file @uploadPic="uploadPic" :img="inviteForm.image" v-model="inviteForm.image"></upload-file>
-					</a-form-model-item>
-					<div>人数：
-						<a-input placeholder="输入人数" :maxLength="50" style="width: 20%;" />
-					</div>
-					<div>奖励类型：
-						<a-radio-group v-model="awardTwoValue" @change="changeAward">
-							<a-radio :value="1">
-								积分
-							</a-radio>
-							<a-radio :value="2">
-								卡券
-							</a-radio>
-						</a-radio-group>
-					</div>
-					<div v-show="awardTwoValue == 1">
-						<a-input placeholder="输入积分" :maxLength="50" style="width: 50%;" />
-						&nbsp;&nbsp;
-						<a-icon type="plus-circle" @click="awardThree = true" />
-					</div>
-					<div v-show="awardTwoValue == 2">
-						<a-input placeholder="输入批次号" :maxLength="50" style="width: 50%;" />
-						&nbsp;&nbsp;
-						<a-icon type="plus-circle" @click="awardThree = true" />
-					</div>
-				</div>
-				<div class="award-set-detail" v-if="awardOne && awardTwo && awardThree">
-					<div>
-						奖励名称：
-						<a-input placeholder="输入奖励名称" :maxLength="50" style="width: 20%;" />
-					</div>
-					<a-form-model-item label="新会员奖励图片" extra="png/jpg格式，2M以内">
-						<upload-file @uploadPic="uploadPic" :img="inviteForm.image" v-model="inviteForm.image"></upload-file>
-					</a-form-model-item>
-					<div>人数：
-						<a-input placeholder="输入人数" :maxLength="50" style="width: 20%;" />
-					</div>
-					<div>奖励类型：
-						<a-radio-group v-model="awardThreeValue" @change="changeAward">
-							<a-radio :value="1">
-								积分
-							</a-radio>
-							<a-radio :value="2">
-								卡券
-							</a-radio>
-						</a-radio-group>
-					</div>
-					<div v-show="awardThreeValue == 1">
-						<a-input placeholder="输入积分" :maxLength="50" style="width: 50%;" />
-					</div>
-					<div v-show="awardThreeValue == 2">
-						<a-input placeholder="输入批次号" :maxLength="50" style="width: 50%;" />
-					</div>
-				</div>
+			</div>
+			<div class="award">
+				<old-member ref="oldAward"></old-member>
 			</div>
 		</a-form-model>
 	</a-modal>
@@ -178,11 +88,16 @@
 <script>
 	import uploadFile from "../../components/UploadFile"
 	import UEditor from "../../components/UEditor.vue"
+	import oldMember from "./oldMember.vue"
+	import {
+		mapActions
+	} from 'vuex'
 	export default {
 		name: 'clubFission',
 		components: {
 			uploadFile,
-			UEditor
+			UEditor,
+			oldMember
 		},
 		props: {
 			clubFissionVisible: {
@@ -196,8 +111,16 @@
 					activeName: '',
 					startDate: '',
 					endDate: '',
-					newAwardName:''
+					newAward: null,
+					awardLimit: '',
+					content: '',
+					newCouponId: null,
+					newTemplateList: null,
+					newPCH: '',
+					newJF: '',
 				},
+				startTimeString: '',
+				endTimeString: '',
 				rules: {
 					activeName: [{
 						required: true,
@@ -214,18 +137,11 @@
 						message: '请选择结束时间',
 						trigger: 'change'
 					}],
-					newAwardName: [{
-						required: true,
-						message: '请输入奖励名称',
-						trigger: 'blur'
-					}],
 				},
 				isShowClub: true,
-				showTimeOptions:{
-					format:"HH:mm"
+				showTimeOptions: {
+					format: "HH:mm:ss"
 				},
-
-
 				friend: {
 					title: '',
 					image: ''
@@ -236,40 +152,25 @@
 				},
 				activeBackImage: '',
 				loading: false,
-				inviteForm: {
-					image: ''
-				},
-				awardValue: 1,
-				awardOneValue: 1,
-				awardTwoValue: 1,
-				awardThreeValue: 1,
-				awardOne: true,
-				awardTwo: false,
-				awardThree: false,
-				rulesA: {
-					required: true,
-					message: 'Please input Activity name',
-					trigger: 'blur'
-				},
-
-
 			}
 		},
 		methods: {
+			...mapActions("userActivity", ["getCouponTemplates"]),
 			/**
-			 * @param {Object} option
-			 * 上传图片
+			 * 验证提交的数据
 			 */
-			uploadPic(option) {
-				// this.inviteForm.image = option.imageUrl;
-				console.log(option)
-			},
-			/**
-			 * @param {Object} content
-			 * 获取权益内容
-			 */
-			getRule(content) {
-				console.log(content)
+			verifyData() {
+				this.$refs.ruleForm.validate(valid => {
+					if (valid) {
+						// alert('submit!');
+						this.clubFissionSubmit()
+					} else {
+						// console.log('error submit!!');
+						// this.clubFissionSubmit()
+						this.$refs.oldAward.validate()
+						return false;
+					}
+				});
 			},
 			/**
 			 * 保存数据,处理参数
@@ -278,20 +179,99 @@
 				const _this = this
 				const submitParam = {
 					//club是否展示
-					a: 0,
+					isShow: _this.isShowClub == true ? 1 : 0,
 					//活动名称
-					title: _this.activeTitle,
+					title: _this.formData.activeName,
 					//活动时间
-					time: _this.activeTime,
+					startTime: _this.startTimeString,
+					endTime: _this.endTimeString,
+					//分享好友
+					friendsTitle: _this.friend.title,
+					friendsBg: _this.friend.image,
+					//分享朋友圈
+					posterTitle: _this.friendC.title,
+					posterBg: _this.friendC.image,
+					//活动主题背景
+					themeBg: _this.activeBackImage,
+					//权益内容
+					content: _this.formData.content,
+					newIsNewVip: 0,
+					//被邀请人
+					newRewardType: parseInt(_this.formData.newAward),
+					newIntegral: _this.formData.newJF,
+					newCouponId: _this.formData.newPCH,
+					newTemplateList:_this.formData.newTemplateList,
+					isNewVip:1,
+					//邀请人
+					activtyRewardList:[]
 				}
-				console.log(this.activeTime)
-				//club是否展示
-				_this.isShowClub == true ? submitParam.a = 0 : submitParam.a = 1
+				// console.log(_this.formData.newAward)
+				// console.log(_this.friendC.title)
+				console.log(submitParam)
 
 			},
-			cancelCallback() {},
+			/**
+			 * @param {Object} moment
+			 * @param {String} dateString
+			 */
+			getStartTime(moment, dateString) {
+				this.startTimeString = dateString
+			},
+			getEndTime(moment, dateString) {
+				this.endTimeString = dateString
+			},
+			/**
+			 * 上传分享好友，朋友圈，背景
+			 */
+			uploadFPic(url) {
+				this.friend.image = url.imageUrl
+			},
+			uploadFCPic(url) {
+				this.friendC.image = url.imageUrl
+			},
+			uploadBPic(url) {
+				this.activeBackImage = url.imageUrl
+			},
+			/**
+			 * @param {Object} content
+			 * 获取权益内容
+			 */
+			getRule(content) {
+				this.formData.content = content.content || ''
+			},
+			/**
+			 * 新用户奖励切换触发
+			 */
+			changeNewAward() {
+				this.formData.newPCH = ''
+				this.formData.newJF = ''
+			},
+			/**
+			 * 添加新会员优惠券，礼品卡
+			 */
+			async addNewId() {
+				if (this.formData.newPCH == null || this.formData.newPCH == '') {
+					this.$message.error({
+						content: "请输入批次号",
+					})
+				} else {
+					const response = await this.getCouponTemplates({
+						"templateCode": this.formData.newPCH
+					});
+					console.log(response)
+					if (response.code != 200) {
+						this.$message.error({
+							content: response.msg,
+						})
+					} else {
+						this.formData.newCouponId =	response.data[0].templateCode
+						this.formData.newTemplateList = response.data[0]
+					}
+				}
+			},
 
-			changeAward() {},
+
+			cancelCallback() {},
 		}
 	}
 </script>
