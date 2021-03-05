@@ -51,6 +51,9 @@
 					<div>
 						<a-form-model-item label="奖励类型">
 							<a-radio-group v-model="formData.newAward" @change="changeNewAward" v-if="formData.newCouponId == null">
+								<a-radio value="0">
+									无
+								</a-radio>
 								<a-radio value="1">
 									优惠券
 								</a-radio>
@@ -61,25 +64,33 @@
 									礼品卡
 								</a-radio>
 							</a-radio-group>
-							<p style="color: red;" v-if="formData.newTemplateList">{{formData.newTemplateList.couponName}}</p>
+							<div v-if="isRemove">
+								<p style="color: red;" v-if="formData.newTemplateList">{{formData.newTemplateList.couponName}}
+									<a-button type="primary" @click="removeNewId" style="margin-left:10px">
+										移除
+									</a-button>
+								</p>
+							</div>
 						</a-form-model-item>
 					</div>
 					<div v-if="formData.newCouponId == null">
-					<div v-show="formData.newAward == 1 || formData.newAward == 3">
-						<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"
-						 v-model="formData.newPCH" />
-						<a-button type="primary" @click="addNewId" style="margin-left:10px">
-							添加
-						</a-button>
-					</div>
-					<div v-show="formData.newAward == 2">
-						<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="formData.newJF" />
-					</div>
+						<div v-show="formData.newAward == 1 || formData.newAward == 3">
+							<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"
+							 v-model="formData.newPCH" />
+							<a-button type="primary" @click="addNewId" style="margin-left:10px">
+								添加
+							</a-button>
+							<p style="color: red;" v-show="warnPCH">请添加{{formData.newAward == 1 ? '优惠券' : '礼品卡'}}</p>
+						</div>
+						<div v-show="formData.newAward == 2">
+							<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="formData.newJF" />
+							<p style="color: red;" v-show="warnJF">请填写积分</p>
+						</div>
 					</div>
 				</div>
 			</div>
 			<div class="award">
-				<old-member ref="oldAward"></old-member>
+				<old-member ref="oldAward" @getOldData="getOldData" @getLimit="getLimit"></old-member>
 			</div>
 		</a-form-model>
 	</a-modal>
@@ -111,7 +122,7 @@
 					activeName: '',
 					startDate: '',
 					endDate: '',
-					newAward: null,
+					newAward: '0',
 					awardLimit: '',
 					content: '',
 					newCouponId: null,
@@ -119,6 +130,8 @@
 					newPCH: '',
 					newJF: '',
 				},
+				warnPCH: false,
+				warnJF: false,
 				startTimeString: '',
 				endTimeString: '',
 				rules: {
@@ -152,25 +165,44 @@
 				},
 				activeBackImage: '',
 				loading: false,
+				isRemove: false,
+				oldAwardData:[],
+				timeLimit:1
 			}
 		},
 		methods: {
-			...mapActions("userActivity", ["getCouponTemplates"]),
+			...mapActions("userActivity", ["getCouponTemplates","saveFriendFissionConfig"]),
+			getLimit(n){
+				this.timeLimit = n
+			},
 			/**
 			 * 验证提交的数据
 			 */
 			verifyData() {
 				this.$refs.ruleForm.validate(valid => {
 					if (valid) {
-						// alert('submit!');
-						this.clubFissionSubmit()
+						console.log('submit')
+						this.validateNew()
+						// this.$refs.oldAward.validate()
 					} else {
-						// console.log('error submit!!');
-						// this.clubFissionSubmit()
-						this.$refs.oldAward.validate()
+						console.log('error submit!!');
+						this.$message.error({
+							content: "有必填项未填写，请检查",
+						})
 						return false;
 					}
 				});
+			},
+			/**
+			 * 验证新会员奖励
+			 */
+			validateNew(){
+				// console.log(this.formData.newAward)
+				if(this.formData.newAward == '2'){
+					if(this.formData.newJF == '') this.warnJF = true
+				}else if(this.formData.newAward == '1' || this.formData.newAward == '3'){
+					if(this.formData.newPCH == '') this.warnPCH = true
+				}
 			},
 			/**
 			 * 保存数据,处理参数
@@ -186,29 +218,33 @@
 					startTime: _this.startTimeString,
 					endTime: _this.endTimeString,
 					//分享好友
-					friendsTitle: _this.friend.title,
-					friendsBg: _this.friend.image,
+					friendsTitle: _this.friend.title || null,
+					friendsBg: _this.friend.image || null,
 					//分享朋友圈
-					posterTitle: _this.friendC.title,
-					posterBg: _this.friendC.image,
+					posterTitle: _this.friendC.title || null,
+					posterBg: _this.friendC.image || null,
 					//活动主题背景
-					themeBg: _this.activeBackImage,
+					themeBg: _this.activeBackImage || null,
 					//权益内容
-					content: _this.formData.content,
+					content: _this.formData.content || null,
 					newIsNewVip: 0,
-					//被邀请人
+					//被邀请人（新会员）（一张券）
 					newRewardType: parseInt(_this.formData.newAward),
-					newIntegral: _this.formData.newJF,
-					newCouponId: _this.formData.newPCH,
-					newTemplateList:_this.formData.newTemplateList,
-					isNewVip:1,
-					//邀请人
-					activtyRewardList:[]
+					newIntegral: _this.formData.newJF || null,
+					newCouponId: _this.formData.newTemplateList == null ? null : _this.formData.newTemplateList.templateCode,
+					newCouponList: [],
+					//老会员奖励数组
+					timeLimit:_this.timeLimit,
+					activityRewardList: _this.oldAwardData
 				}
-				// console.log(_this.formData.newAward)
-				// console.log(_this.friendC.title)
-				console.log(submitParam)
-
+				if(_this.formData.newTemplateList == null){
+					submitParam.newCouponList = []
+				}else{
+					submitParam.newCouponList.push(_this.formData.newTemplateList)
+				}
+				console.log(JSON.stringify(submitParam,null,2))
+				const response =  _this.saveFriendFissionConfig(JSON.stringify(submitParam,null,2))
+				console.log(response)
 			},
 			/**
 			 * @param {Object} moment
@@ -243,8 +279,10 @@
 			 * 新用户奖励切换触发
 			 */
 			changeNewAward() {
-				this.formData.newPCH = ''
 				this.formData.newJF = ''
+				this.formData.newPCH = ''
+				this.formData.newCouponId = null
+				this.formData.newTemplateList = null
 			},
 			/**
 			 * 添加新会员优惠券，礼品卡
@@ -264,12 +302,29 @@
 							content: response.msg,
 						})
 					} else {
-						this.formData.newCouponId =	response.data[0].templateCode
+						this.formData.newCouponId = response.data[0].templateCode
 						this.formData.newTemplateList = response.data[0]
+						this.isRemove = true
 					}
 				}
 			},
-
+			/**
+			 * 删除新会员优惠券，礼品卡
+			 */
+			removeNewId() {
+				this.changeNewAward()
+				this.formData.newAward = '0'
+				this.isRemove = false
+			},
+			/**
+			 * data Object
+			 * 获取老奖励数据
+			 */
+			getOldData(data) {
+				this.oldAwardData = []
+				this.oldAwardData.push(data)
+				this.clubFissionSubmit()
+			},
 
 			cancelCallback() {},
 		}

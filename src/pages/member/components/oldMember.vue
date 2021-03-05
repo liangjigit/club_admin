@@ -14,14 +14,21 @@
 			</a-form-model-item>
 		</div>
 		<div class="award-set-detail" style="border: 1px solid #3A87AD;" v-if="awardOne">
+			<p style="color: red;margin-top: 10px;">*奖励所有设置均为必填项</p>
 			<div>
 				奖励名称：
-				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="oldInvite.nameOn" />
+				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="oldInvite.nameOn" @blur="blurValidate(1)" />
+				<p style="color: red;" v-show="warn.warnName">请输入奖励名称</p>
 			</div>
 			<div>
 				邀请人数：
-				<a-input placeholder="输入邀请人数" :maxLength="5" style="width: 20%;" v-model="oldInvite.peopleOn" />
+				<a-input placeholder="输入邀请人数" :maxLength="5" style="width: 20%;" v-model="oldInvite.peopleOn" @blur="blurValidate(2)" />
+				<p style="color: red;" v-show="warn.warnPeople">请输入邀请人数</p>
 			</div>
+
+
+
+
 			<div>奖励类型：
 				<a-radio-group v-model="oldInvite.typeOn" @change="changeOldAward" v-if="couponId == null">
 					<a-radio value="1">
@@ -34,123 +41,70 @@
 						礼品卡
 					</a-radio>
 				</a-radio-group>
-				<p style="color: red;" v-if="templateList">{{templateList.couponName}}</p>
+				<div v-if="isRemove">
+					<p style="color: red;" v-if="templateList">{{templateList.couponName}}
+						<a-button type="primary" @click="removeNewId" style="margin-left:10px">
+							移除
+						</a-button>
+					</p>
+				</div>
 			</div>
-			<div v-show="oldInvite.typeOn == 1 || oldInvite.typeOn == 3">
-				<a-input :placeholder="oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"  v-model="oldPCH"/>
-				<a-button type="primary" @click="addNewId" style="margin-left:10px">
-					添加
-				</a-button>
+			<div v-if="couponId == null">
+				<div v-show="oldInvite.typeOn == 1 || oldInvite.typeOn == 3">
+					<a-input :placeholder="oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"
+					 v-model="oldPCH" @blur="blurValidate(3)" />
+					<a-button type="primary" @click="addNewId" style="margin-left:10px">
+						添加
+					</a-button>
+					<p style="color: red;" v-show="warn.warnType">请输入类型奖励</p>
+				</div>
+				<div v-show="oldInvite.typeOn == 2">
+					<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="oldJF" @blur="blurValidate(3)" />
+					<p style="color: red;" v-show="warn.warnType">请输入类型奖励</p>
+				</div>
 			</div>
-			<div v-show="oldInvite.typeOn == 2">
-				<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="oldJF"/>
-			</div>
+
+
+
+
+
 			<a-form-model-item label="老会员奖励图片" extra="png/jpg格式，2M以内">
 				<upload-file @uploadPic="uploadPicOn" :img="oldInvite.imageOn" v-model="oldInvite.imageOn"></upload-file>
+				<p style="color: red;" v-show="warn.warnImg">请上传奖励图片</p>
 			</a-form-model-item>
 			<div>
-				<a-button type="primary" @click="awardTwo = true" style="margin-bottom: 5px;">
+				<a-button type="primary" @click="addAward" style="margin-bottom: 5px;">
 					增加奖励
 				</a-button>
 			</div>
 		</div>
-		
-		<!-- <div class="award-set-detail" style="border: 1px solid #3A87AD;" v-if="awardOne && awardTwo">
-			<div>
-				奖励名称：
-				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="formData.oldInvite.nameOn" />
-			</div>
-			<div>人数：
-				<a-input placeholder="输入人数" :maxLength="5" style="width: 20%;" v-model="formData.oldInvite.peopleOn" />
-			</div>
-			<div>奖励类型：
-				<a-radio-group v-model="formData.oldInvite.typeOn">
-					<a-radio value="1">
-						优惠券
-					</a-radio>
-					<a-radio value="2">
-						积分
-					</a-radio>
-					<a-radio value="3">
-						礼品卡
-					</a-radio>
-				</a-radio-group>
-			</div>
-			<div v-show="formData.oldInvite.typeOn == 1 || formData.oldInvite.typeOn == 3">
-				<a-input :placeholder="formData.oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;" />
-				<a-button type="primary" @click="addNewId" style="margin-left:10px">
-					添加
-				</a-button>
-			</div>
-			<div v-show="formData.oldInvite.typeOn == 2">
-				<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" />
-			</div>
-			<a-form-model-item label="老会员奖励图片" extra="png/jpg格式，2M以内">
-				<upload-file @uploadPic="uploadPicOn" :img="formData.oldInvite.imageOn" v-model="formData.oldInvite.imageOn"></upload-file>
-			</a-form-model-item>
-			<div>
-				<a-button type="primary" @click="awardThree = true" style="margin-bottom: 5px;">
-					增加奖励
-				</a-button>
-			</div>
-		</div>
-		
-		<div class="award-set-detail" style="border: 1px solid #3A87AD;" v-if="awardOne && awardTwo && awardThree">
-			<div>
-				奖励名称：
-				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="formData.oldInvite.nameOn" />
-			</div>
-			<div>人数：
-				<a-input placeholder="输入人数" :maxLength="5" style="width: 20%;" v-model="formData.oldInvite.peopleOn" />
-			</div>
-			<div>奖励类型：
-				<a-radio-group v-model="formData.oldInvite.typeOn">
-					<a-radio value="1">
-						优惠券
-					</a-radio>
-					<a-radio value="2">
-						积分
-					</a-radio>
-					<a-radio value="3">
-						礼品卡
-					</a-radio>
-				</a-radio-group>
-			</div>
-			<div v-show="formData.oldInvite.typeOn == 1 || formData.oldInvite.typeOn == 3">
-				<a-input :placeholder="formData.oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;" />
-				<a-button type="primary" @click="addNewId" style="margin-left:10px">
-					添加
-				</a-button>
-			</div>
-			<div v-show="formData.oldInvite.typeOn == 2">
-				<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" />
-			</div>
-			<a-form-model-item label="老会员奖励图片" extra="png/jpg格式，2M以内">
-				<upload-file @uploadPic="uploadPicOn" :img="formData.oldInvite.imageOn" v-model="formData.oldInvite.imageOn"></upload-file>
-			</a-form-model-item>
-		</div> -->
+
+
 	</div>
 </template>
 
 <script>
-	import {mapActions} from 'vuex'
+	import {
+		mapActions
+	} from 'vuex'
 	import uploadFile from "../../components/UploadFile"
-	export default{
-		name:"oldMember",
+	export default {
+		name: "oldMember",
 		components: {
 			uploadFile,
 		},
-		data(){
-			return{
+		data() {
+			return {
+				isRemove: false,
 				awardOne: true,
 				awardTwo: false,
 				awardThree: false,
-				awardLimit:'',
-				couponId:null,
-				templateList:null,
-				oldJF:'',
-				oldPCH:'',
-				oldInvite:{
+				awardLimit: '1',
+				couponId: null,
+				templateList: null,
+				oldJF: '',
+				oldPCH: '',
+				oldInvite: {
 					imageOn: '',
 					imageTw: '',
 					imageTh: '',
@@ -160,13 +114,19 @@
 					peopleOn: '',
 					peopleTw: '',
 					peopleTh: '',
-					typeOn: '',
-					typeTw: '',
-					typeTh: ''
+					typeOn: '1',
+					typeTw: '1',
+					typeTh: '1'
+				},
+				warn: {
+					warnName: false,
+					warnPeople: false,
+					warnImg: false,
+					warnType: false
 				}
 			}
 		},
-		methods:{
+		methods: {
 			...mapActions("userActivity", ["getCouponTemplates"]),
 			/**
 			 * @param {Object} option
@@ -206,33 +166,116 @@
 							content: response.msg,
 						})
 					} else {
-						this.couponId =	response.data[0].templateCode
+						this.couponId = response.data[0].templateCode
 						this.templateList = response.data[0]
+						this.isRemove = true
 					}
 				}
 			},
 			/**
-			 * 验证老用户奖励方法
+			 * 移除选定的优惠券，礼品卡
 			 */
-			validate(){
+			removeNewId() {
+				this.templateList = null
+				this.oldInvite.typeOn = '1'
+				this.couponId = null
+				this.isRemove = false
+				this.oldJF = ''
+				this.oldPCH = ''
+			},
+			/**
+			 * 失去焦点验证
+			 */
+			blurValidate(type) {
+				switch (type) {
+					case 1:
+						if (this.oldInvite.nameOn == '' || this.oldInvite.nameOn == null) {
+							this.warn.warnName = true
+						} else {
+							this.warn.warnName = false
+						}
+						break;
+					case 2:
+						if (this.oldInvite.peopleOn == '' || this.oldInvite.peopleOn == null) {
+							this.warn.warnPeople = true
+						} else {
+							this.warn.warnPeople = false
+						}
+						break;
+					case 3:
+						if (this.oldInvite.typeOn == '1' || this.oldInvite.typeOn == '3') {
+							if (this.oldPCH == '' || this.oldPCH == null) {
+								this.warn.warnType = true
+							} else {
+								this.warn.warnType = false
+							}
+						} else {
+							if (this.oldJF == '' || this.oldJF == null) {
+								this.warn.warnType = true
+							} else {
+								this.warn.warnType = false
+							}
+						}
+				}
+			},
+			/**
+			 * 增加奖励，需要验证
+			 */
+			addAward() {
 				const _this = this
 				const paramOn = {
+					isNewVip: 1,
 					//奖品名称
-					prizeName:_this.oldInvite.nameOn,
+					prizeName: _this.oldInvite.nameOn,
 					//邀请人数
-					inviteCount:_this.oldInvite.peopleOn,
+					inviteCount: parseInt(_this.oldInvite.peopleOn),
 					//奖励类型
-					rewardType:_this.oldInvite.typeOn,
+					rewardType: parseInt(_this.oldInvite.typeOn),
 					//积分
-					integral:_this.oldJF,
+					integral: parseInt(_this.oldJF),
 					//优惠券礼品卡id
-					couponId:_this.couponId,
-					templateList:_this.templateList,
-					prizeImg:_this.oldInvite.imageOn
+					couponId: _this.couponId,
+					prizeImg: _this.oldInvite.imageOn,
+					couponList: _this.templateList == null ? [] : _this.templateList
 				}
-				console.log(Object.values(paramOn))
+				this.$emit('getOldData',paramOn)
+			},
+			/**
+			 * 验证老用户奖励方法
+			 */
+			validate() {
+				if (this.oldInvite.nameOn == '') this.warn.warnName = true
+				if (this.oldInvite.peopleOn == '') this.warn.warnPeople = true
+				if (this.oldInvite.imageOn == '') this.warn.warnImg = true
+				if (this.oldJF == '' && this.couponId == null) this.warn.warnType = true
+				//有验证不通过则不能提交
+				if(!this.warn.warnName && !this.warn.warnPeople && !this.warn.warnImg && !this.warn.warnType){
+					console.log('通过了')
+					this.addAward()
+				}else{
+					this.$message.error({
+						content: '有必填项未填写，请检查',
+					})
+				}
 			}
 		},
+		computed:{
+			imageWarn(){
+				return this.oldInvite.imageOn
+			}
+		},
+		watch:{
+			imageWarn(){
+				if(this.oldInvite.imageOn == ''){
+					this.warn.warnImg = true
+				}else{
+					this.warn.warnImg = false
+				}
+			},
+			awardLimit(n){
+				this.$emit('getLimit',parseInt(n))
+			}
+		}
 	}
 </script>
 

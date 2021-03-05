@@ -1252,7 +1252,7 @@
 					console.log(activtiyResponse.data)
 					this.userActivityVisible = true;
 				}else if (value.type == 5) {
-					console.log(value)
+					// console.log(value)
 					// const response = await this.getAllActivity();
 					// this.activityList = response.data;
 					// const activtiyResponse = await this.getUserActivityConfig();
