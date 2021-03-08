@@ -1,7 +1,7 @@
 <template>
 	<div class="old-member">
-		<div class="award-set">老会员奖励</div>
-		<div class="award-set-detail">
+		<div class="award-set" v-if="isShowMore">老会员奖励</div>
+		<div class="award-set-detail" v-if="isShowMore">
 			<a-form-model-item label="奖励领取是否限次">
 				<a-radio-group v-model="awardLimit">
 					<a-radio value="1">
@@ -17,18 +17,21 @@
 			<p style="color: red;margin-top: 10px;">*奖励所有设置均为必填项</p>
 			<div>
 				奖励名称：
-				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="oldInvite.nameOn" @blur="blurValidate(1)" />
+				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="oldInvite.nameOn"
+					@blur="blurValidate(1)" />
 				<p style="color: red;" v-show="warn.warnName">请输入奖励名称</p>
 			</div>
 			<div>
 				邀请人数：
-				<a-input placeholder="输入邀请人数" :maxLength="5" style="width: 20%;" v-model="oldInvite.peopleOn" @blur="blurValidate(2)" />
+				<a-input placeholder="输入邀请人数" :maxLength="5" style="width: 20%;" v-model="oldInvite.peopleOn"
+					@blur="blurValidate(2)" />
 				<p style="color: red;" v-show="warn.warnPeople">请输入邀请人数</p>
 			</div>
-
-
-
-
+			<a-form-model-item label="老会员奖励图片" extra="png/jpg格式，2M以内">
+				<upload-file @uploadPic="uploadPicOn" :img="oldInvite.imageOn" v-model="oldInvite.imageOn">
+				</upload-file>
+				<p style="color: red;" v-show="warn.warnImg">请上传奖励图片</p>
+			</a-form-model-item>
 			<div>奖励类型：
 				<a-radio-group v-model="oldInvite.typeOn" @change="changeOldAward" v-if="couponId == null">
 					<a-radio value="1">
@@ -49,37 +52,23 @@
 					</p>
 				</div>
 			</div>
-			<div v-if="couponId == null">
+			<div v-if="couponId == null" style="margin-bottom: 10px;">
+				<div v-show="oldInvite.typeOn == 2">
+					<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="oldJF"
+						@blur="blurValidate(3)" />
+					<p style="color: red;margin-top: 5px;" v-show="warn.warnJF">请输入积分</p>
+				</div>
 				<div v-show="oldInvite.typeOn == 1 || oldInvite.typeOn == 3">
-					<a-input :placeholder="oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"
-					 v-model="oldPCH" @blur="blurValidate(3)" />
+					<a-input :placeholder="oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20"
+						style="width: 30%;" v-model="oldPCH" @blur="blurValidate(3)" />
 					<a-button type="primary" @click="addNewId" style="margin-left:10px">
 						添加
 					</a-button>
-					<p style="color: red;" v-show="warn.warnType">请输入类型奖励</p>
+					<p style="color: red;margin-top: 5px;" v-show="warn.warnPCH">{{oldInvite.typeOn == 1 ? '请输入优惠券批次号' : '请输入礼品卡批次号'}}
+					</p>
 				</div>
-				<div v-show="oldInvite.typeOn == 2">
-					<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="oldJF" @blur="blurValidate(3)" />
-					<p style="color: red;" v-show="warn.warnType">请输入类型奖励</p>
-				</div>
-			</div>
-
-
-
-
-
-			<a-form-model-item label="老会员奖励图片" extra="png/jpg格式，2M以内">
-				<upload-file @uploadPic="uploadPicOn" :img="oldInvite.imageOn" v-model="oldInvite.imageOn"></upload-file>
-				<p style="color: red;" v-show="warn.warnImg">请上传奖励图片</p>
-			</a-form-model-item>
-			<div>
-				<a-button type="primary" @click="addAward" style="margin-bottom: 5px;">
-					增加奖励
-				</a-button>
 			</div>
 		</div>
-
-
 	</div>
 </template>
 
@@ -92,6 +81,16 @@
 		name: "oldMember",
 		components: {
 			uploadFile,
+		},
+		props:{
+			isShowMore:{
+				type:Boolean,
+				default:true
+			},
+			oldLevel:{
+				type:Number,
+				default:1
+			}
 		},
 		data() {
 			return {
@@ -122,12 +121,37 @@
 					warnName: false,
 					warnPeople: false,
 					warnImg: false,
-					warnType: false
+					warnJF: false,
+					warnPCH: false
 				}
 			}
 		},
 		methods: {
 			...mapActions("userActivity", ["getCouponTemplates"]),
+			/**
+			 * 验证老用户奖励方法
+			 */
+			validate() {
+				if (this.oldInvite.nameOn == '') this.warn.warnName = true
+				if (this.oldInvite.peopleOn == '') this.warn.warnPeople = true
+				if (this.oldInvite.imageOn == '') this.warn.warnImg = true
+				//判断奖励类型是否添加
+				if (this.oldInvite.typeOn == '2') {
+					if (this.oldJF == '') this.warn.warnJF = true
+				} else if (this.oldInvite.typeOn == '1' || this.oldInvite.typeOn == '3') {
+					if (this.isRemove == false) this.warn.warnPCH = true
+				}
+				//有验证不通过则不能提交
+				// console.log(this.warn.warnName,this.warn.warnPeople,this.warn.warnImg,this.warn.warnJF,this.warn.warnPCH)
+				if (!this.warn.warnName && !this.warn.warnPeople && !this.warn.warnImg && !this.warn.warnJF && !this.warn.warnPCH) {
+					console.log('通过了')
+					this.addAward()
+				} else {
+					this.$message.error({
+						content: '有必填项未填写，请检查',
+					})
+				}
+			},
 			/**
 			 * @param {Object} option
 			 * 上传图片
@@ -147,6 +171,8 @@
 			changeOldAward() {
 				this.oldPCH = ''
 				this.oldJF = ''
+				this.warn.warnJF = false
+				this.warn.warnPCH = false
 			},
 			/**
 			 * 添加新会员优惠券，礼品卡
@@ -169,6 +195,7 @@
 						this.couponId = response.data[0].templateCode
 						this.templateList = response.data[0]
 						this.isRemove = true
+						this.warn.warnPCH = false
 					}
 				}
 			},
@@ -204,16 +231,12 @@
 						break;
 					case 3:
 						if (this.oldInvite.typeOn == '1' || this.oldInvite.typeOn == '3') {
-							if (this.oldPCH == '' || this.oldPCH == null) {
-								this.warn.warnType = true
-							} else {
-								this.warn.warnType = false
-							}
+							if (this.isRemove == false) this.warn.warnPCH = true
 						} else {
 							if (this.oldJF == '' || this.oldJF == null) {
-								this.warn.warnType = true
+								this.warn.warnJF = true
 							} else {
-								this.warn.warnType = false
+								this.warn.warnJF = false
 							}
 						}
 				}
@@ -229,51 +252,33 @@
 					prizeName: _this.oldInvite.nameOn,
 					//邀请人数
 					inviteCount: parseInt(_this.oldInvite.peopleOn),
+					prizeImg: _this.oldInvite.imageOn,
 					//奖励类型
 					rewardType: parseInt(_this.oldInvite.typeOn),
 					//积分
-					integral: parseInt(_this.oldJF),
+					integral: _this.oldJF == '' ? null : parseInt(_this.oldJF),
 					//优惠券礼品卡id
-					couponId: _this.couponId,
-					prizeImg: _this.oldInvite.imageOn,
+					couponId: _this.couponId == null ? null : _this.couponId ,
 					couponList: _this.templateList == null ? [] : _this.templateList
 				}
-				this.$emit('getOldData',paramOn)
+				this.$emit('getOldData', paramOn,this.oldLevel)
 			},
-			/**
-			 * 验证老用户奖励方法
-			 */
-			validate() {
-				if (this.oldInvite.nameOn == '') this.warn.warnName = true
-				if (this.oldInvite.peopleOn == '') this.warn.warnPeople = true
-				if (this.oldInvite.imageOn == '') this.warn.warnImg = true
-				if (this.oldJF == '' && this.couponId == null) this.warn.warnType = true
-				//有验证不通过则不能提交
-				if(!this.warn.warnName && !this.warn.warnPeople && !this.warn.warnImg && !this.warn.warnType){
-					console.log('通过了')
-					this.addAward()
-				}else{
-					this.$message.error({
-						content: '有必填项未填写，请检查',
-					})
-				}
-			}
 		},
-		computed:{
-			imageWarn(){
+		computed: {
+			imageWarn() {
 				return this.oldInvite.imageOn
 			}
 		},
-		watch:{
-			imageWarn(){
-				if(this.oldInvite.imageOn == ''){
+		watch: {
+			imageWarn() {
+				if (this.oldInvite.imageOn == '') {
 					this.warn.warnImg = true
-				}else{
+				} else {
 					this.warn.warnImg = false
 				}
 			},
-			awardLimit(n){
-				this.$emit('getLimit',parseInt(n))
+			awardLimit(n) {
+				this.$emit('getLimit', parseInt(n))
 			}
 		}
 	}

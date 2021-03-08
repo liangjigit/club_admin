@@ -403,7 +403,7 @@
 			</a-form-model>
 		</a-modal>
 		
-		<club-fission :clubFissionVisible="clubFissionVisible"></club-fission>
+		<club-fission @cancel="clubFissionVisible = false" v-if="clubFissionVisible"></club-fission>
 	</a-row>
 
 
@@ -1252,11 +1252,6 @@
 					console.log(activtiyResponse.data)
 					this.userActivityVisible = true;
 				}else if (value.type == 5) {
-					// console.log(value)
-					// const response = await this.getAllActivity();
-					// this.activityList = response.data;
-					// const activtiyResponse = await this.getUserActivityConfig();
-					// console.log(activtiyResponse.data)
 					this.clubFissionVisible = true;
 				}
 			},

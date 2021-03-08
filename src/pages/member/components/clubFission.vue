@@ -1,7 +1,7 @@
 <template>
 	<a-modal :width="800" v-model="clubFissionVisible" :title="'邀请好友参加活动'" cancelText="取消" okText="保存" :centered="true"
-	 :keyboard="false" :maskClosable="false" :closable="false" :confirmLoading="loading" @ok="verifyData" @cancel="cancelCallback"
-	 :destroyOnClose="true">
+		:keyboard="false" :maskClosable="false" :closable="false" :confirmLoading="loading" @ok="verifyData"
+		@cancel="cancelCallback" :destroyOnClose="true">
 		<a-form-model ref="ruleForm" :model="formData" :rules="rules">
 			<div class="title">基础设置</div>
 			<div class="basic">
@@ -10,34 +10,41 @@
 					<a-switch checked-children="是" un-checked-children="否" v-model="isShowClub" />
 				</div>
 				<a-form-model-item label="活动名称" ref="activeName" prop="activeName">
-					<a-input placeholder="输入活动名称(限制50字符)" :maxLength="50" style="width: 50%;" v-model="formData.activeName" @blur="()=>{$refs.activeName.onFieldBlur()}" />
+					<a-input placeholder="输入活动名称(限制50字符)" :maxLength="50" style="width: 50%;"
+						v-model="formData.activeName" @blur="()=>{$refs.activeName.onFieldBlur()}" />
 				</a-form-model-item>
 				<div>
 					活动时间：
 					<a-form-model-item label="开始时间" required prop="startDate">
-						<a-date-picker v-model="formData.startDate" :show-time="showTimeOptions" type="date" placeholder="选择开始时间" style="width: 50%;"
-						 :allowClear="false" format="YYYY-MM-DD HH:mm:ss" @change="getStartTime" />
+						<a-date-picker v-model="formData.startDate" :show-time="showTimeOptions" type="date"
+							placeholder="选择开始时间" style="width: 50%;" :allowClear="false" format="YYYY-MM-DD HH:mm:ss"
+							@change="getStartTime" />
 					</a-form-model-item>
 					<a-form-model-item label="结束时间" required prop="endDate">
-						<a-date-picker v-model="formData.endDate" :show-time="showTimeOptions" type="date" placeholder="选择结束时间" style="width: 50%;"
-						 :allowClear="false" format="YYYY-MM-DD HH:mm:ss" @change="getEndTime" />
+						<a-date-picker v-model="formData.endDate" :show-time="showTimeOptions" type="date"
+							placeholder="选择结束时间" style="width: 50%;" :allowClear="false" format="YYYY-MM-DD HH:mm:ss"
+							@change="getEndTime" />
 					</a-form-model-item>
 				</div>
 				<div>
 					<a-form-model-item label="好友邀请卡片" extra="png/jpg格式，2M以内">
 						<div>好友分享标题：
-							<a-input placeholder="输入好友分享标题(限制20字符)" :maxLength="20" style="width: 30%;" v-model="friend.title" />
+							<a-input placeholder="输入好友分享标题(限制20字符)" :maxLength="20" style="width: 30%;"
+								v-model="friend.title" />
 						</div>
 						<upload-file @uploadPic="uploadFPic" :img="friend.image" v-model="friend.image"></upload-file>
 					</a-form-model-item>
 					<a-form-model-item label="朋友圈分享" extra="png/jpg格式，2M以内">
 						<div>朋友圈分享标题：
-							<a-input placeholder="输入朋友圈分享标题(限制20字符)" :maxLength="20" style="width: 30%;" v-model="friendC.title" />
+							<a-input placeholder="输入朋友圈分享标题(限制20字符)" :maxLength="20" style="width: 30%;"
+								v-model="friendC.title" />
 						</div>
-						<upload-file @uploadPic="uploadFCPic" :img="friendC.image" v-model="friendC.image"></upload-file>
+						<upload-file @uploadPic="uploadFCPic" :img="friendC.image" v-model="friendC.image">
+						</upload-file>
 					</a-form-model-item>
 					<a-form-model-item label="活动主题页背景" extra="png/jpg格式，2M以内">
-						<upload-file @uploadPic="uploadBPic" :img="activeBackImage" v-model="activeBackImage"></upload-file>
+						<upload-file @uploadPic="uploadBPic" :img="activeBackImage" v-model="activeBackImage">
+						</upload-file>
 					</a-form-model-item>
 				</div>
 				<div>权益内容：
@@ -50,7 +57,8 @@
 				<div class="award-set-detail">
 					<div>
 						<a-form-model-item label="奖励类型">
-							<a-radio-group v-model="formData.newAward" @change="changeNewAward" v-if="formData.newCouponId == null">
+							<a-radio-group v-model="formData.newAward" @change="changeNewAward"
+								v-if="formData.newCouponId == null">
 								<a-radio value="0">
 									无
 								</a-radio>
@@ -65,7 +73,8 @@
 								</a-radio>
 							</a-radio-group>
 							<div v-if="isRemove">
-								<p style="color: red;" v-if="formData.newTemplateList">{{formData.newTemplateList.couponName}}
+								<p style="color: red;" v-if="formData.newTemplateList">
+									{{formData.newTemplateList.couponName}}
 									<a-button type="primary" @click="removeNewId" style="margin-left:10px">
 										移除
 									</a-button>
@@ -75,22 +84,37 @@
 					</div>
 					<div v-if="formData.newCouponId == null">
 						<div v-show="formData.newAward == 1 || formData.newAward == 3">
-							<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20" style="width: 30%;"
-							 v-model="formData.newPCH" />
+							<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20"
+								style="width: 30%;" v-model="formData.newPCH" />
 							<a-button type="primary" @click="addNewId" style="margin-left:10px">
 								添加
 							</a-button>
-							<p style="color: red;" v-show="warnPCH">请添加{{formData.newAward == 1 ? '优惠券' : '礼品卡'}}</p>
+							<p style="color: red;margin-top: 5px;" v-show="warnPCH">
+								请添加{{formData.newAward == 1 ? '优惠券' : '礼品卡'}}</p>
 						</div>
 						<div v-show="formData.newAward == 2">
-							<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="formData.newJF" />
-							<p style="color: red;" v-show="warnJF">请填写积分</p>
+							<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="formData.newJF"
+								@blur="checkJF" />
+							<p style="color: red;margin-top: 5px;" v-show="warnJF">请填写积分</p>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="award">
 				<old-member ref="oldAward" @getOldData="getOldData" @getLimit="getLimit"></old-member>
+			</div>
+			<div class="award" v-if="theOldTwo">
+				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2" @getOldData="getOldData" @getLimit="getLimit">
+				</old-member>
+			</div>
+			<div class="award" v-if="theOldThree">
+				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" @getOldData="getOldData" @getLimit="getLimit">
+				</old-member>
+			</div>
+			<div v-if="!theOldThree">
+				<a-button type="primary" @click="addOldAward" style="margin-top: 10px;">
+					增加奖励
+				</a-button>
 			</div>
 		</a-form-model>
 	</a-modal>
@@ -110,14 +134,15 @@
 			UEditor,
 			oldMember
 		},
-		props: {
-			clubFissionVisible: {
-				type: Boolean,
-				default: false
-			}
-		},
+		// props: {
+		// 	clubFissionVisible: {
+		// 		type: Boolean,
+		// 		default: false
+		// 	}
+		// },
 		data() {
 			return {
+				clubFissionVisible:true,
 				formData: {
 					activeName: '',
 					startDate: '',
@@ -166,14 +191,29 @@
 				activeBackImage: '',
 				loading: false,
 				isRemove: false,
-				oldAwardData:[],
-				timeLimit:1
+				oldAwardData: [],
+				timeLimit: 1,
+				theOldTwo: false,
+				theOldThree: false
 			}
 		},
+		created() {
+			// const res = this.getFriendFissionConfig({
+			// 	pageNum:"1",
+			// 	pageSize:"10"
+			// })
+			// const a = "[{\"couponAmount\":999,\"couponName\":\"分裂活动新用户优惠券啊\",\"couponNum\":1,\"instructions\":\"\",\"subheading\":\"副标题-分裂活动新用户优惠券啊\",\"templateCode\":\"JT20210305000001\"}]";
+			// let res =JSON.parse(a)
+			// console.log(res)
+		},
 		methods: {
-			...mapActions("userActivity", ["getCouponTemplates","saveFriendFissionConfig"]),
-			getLimit(n){
+			...mapActions("userActivity", ["getCouponTemplates", "saveFriendFissionConfig", "getFriendFissionConfig"]),
+			getLimit(n) {
 				this.timeLimit = n
+			},
+			checkJF() {
+				if (this.formData.newJF.length == 0) return
+				this.warnJF = false
 			},
 			/**
 			 * 验证提交的数据
@@ -183,7 +223,6 @@
 					if (valid) {
 						console.log('submit')
 						this.validateNew()
-						// this.$refs.oldAward.validate()
 					} else {
 						console.log('error submit!!');
 						this.$message.error({
@@ -196,18 +235,36 @@
 			/**
 			 * 验证新会员奖励
 			 */
-			validateNew(){
+			validateNew() {
 				// console.log(this.formData.newAward)
-				if(this.formData.newAward == '2'){
-					if(this.formData.newJF == '') this.warnJF = true
-				}else if(this.formData.newAward == '1' || this.formData.newAward == '3'){
-					if(this.formData.newPCH == '') this.warnPCH = true
+				if (this.formData.newAward == '2') {
+					if (this.formData.newJF == '') {
+						this.warnJF = true
+						this.$message.error({
+							content: "请添加新会员积分",
+						})
+					} else {
+						this.$refs.oldAward.validate()
+						// if(this.theOldTwo == true) this.$refs.oldAwardTwo.validate()
+						// if(this.theOldThree == true) this.$refs.oldAwardThree.validate()
+					}
+				} else if (this.formData.newAward == '1' || this.formData.newAward == '3') {
+					if (this.isRemove == false) {
+						this.warnPCH = true
+						this.$message.error({
+							content: this.formData.newAward == '1' ? '请添加优惠券' : "请添加礼品卡",
+						})
+					} else {
+						this.$refs.oldAward.validate()
+					}
+				} else {
+					this.$refs.oldAward.validate()
 				}
 			},
 			/**
 			 * 保存数据,处理参数
 			 */
-			clubFissionSubmit() {
+			async clubFissionSubmit() {
 				const _this = this
 				const submitParam = {
 					//club是否展示
@@ -231,20 +288,24 @@
 					//被邀请人（新会员）（一张券）
 					newRewardType: parseInt(_this.formData.newAward),
 					newIntegral: _this.formData.newJF || null,
-					newCouponId: _this.formData.newTemplateList == null ? null : _this.formData.newTemplateList.templateCode,
+					newCouponId: _this.formData.newTemplateList == null ? null : _this.formData.newTemplateList
+						.templateCode,
 					newCouponList: [],
 					//老会员奖励数组
-					timeLimit:_this.timeLimit,
+					timeLimit: _this.timeLimit,
 					activityRewardList: _this.oldAwardData
 				}
-				if(_this.formData.newTemplateList == null){
+				if (_this.formData.newTemplateList == null) {
 					submitParam.newCouponList = []
-				}else{
+				} else {
 					submitParam.newCouponList.push(_this.formData.newTemplateList)
 				}
-				console.log(JSON.stringify(submitParam,null,2))
-				const response =  _this.saveFriendFissionConfig(JSON.stringify(submitParam,null,2))
-				console.log(response)
+				// console.log(JSON.stringify(submitParam, null, 2))
+				const response = await _this.saveFriendFissionConfig(JSON.stringify(submitParam,null,2))
+				if(response.code == 200){
+					this.$message.success("保存成功");
+					this.cancelCallback()
+				}
 			},
 			/**
 			 * @param {Object} moment
@@ -283,6 +344,8 @@
 				this.formData.newPCH = ''
 				this.formData.newCouponId = null
 				this.formData.newTemplateList = null
+				this.warnJF = false
+				this.warnPCH = false
 			},
 			/**
 			 * 添加新会员优惠券，礼品卡
@@ -305,6 +368,7 @@
 						this.formData.newCouponId = response.data[0].templateCode
 						this.formData.newTemplateList = response.data[0]
 						this.isRemove = true
+						this.warnPCH = false
 					}
 				}
 			},
@@ -320,13 +384,34 @@
 			 * data Object
 			 * 获取老奖励数据
 			 */
-			getOldData(data) {
-				this.oldAwardData = []
+			getOldData(data,level) {
 				this.oldAwardData.push(data)
+				if(this.theOldTwo == true && level == 1) {
+					this.$refs.oldAwardTwo.validate()
+					return
+				}
+				if(this.theOldThree == true && level == 2){
+					this.$refs.oldAwardThree.validate()
+					return
+				} 
 				this.clubFissionSubmit()
 			},
-
-			cancelCallback() {},
+			/**
+			 * 添加新的老会员奖励
+			 */
+			addOldAward() {
+				if (this.theOldTwo == false) {
+					this.theOldTwo = true
+				} else {
+					this.theOldThree = true
+				}
+			},
+			/**
+			 * 退出
+			 */
+			cancelCallback() {
+				this.$emit('cancel')
+			},
 		}
 	}
 </script>

@@ -20,16 +20,25 @@ const state = {
 };
 
 const actions = {
+	async getFriendFissionConfig({
+		commit
+	},payload){
+		console.log(commit)
+		return (await request({
+			url:'/content/admin/userBind/list',
+			method:'POST',
+			data:payload
+		})).data
+	},
 	async saveFriendFissionConfig({
 		commit
 	}, payload) {
 		console.log(commit)
-		return await request({
+		return (await request({
 			url: '/content/admin/userBind/saveUserBindConfig',
 			method: 'POST',
 			data: payload
-		}).data
-		
+		})).data
 	},
 	async saveUserActivityConfig({
 		commit
