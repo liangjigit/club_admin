@@ -9,6 +9,14 @@
 					是否club展示：
 					<a-switch checked-children="是" un-checked-children="否" v-model="isShowClub" />
 				</div>
+				<div>
+					活动标识：
+					<a-select default-value="FL" style="width: 10%" @change="changeSelect">
+						<a-select-option value="FL">
+							FL
+						</a-select-option>
+					</a-select>
+				</div>
 				<a-form-model-item label="活动名称" ref="activeName" prop="activeName">
 					<a-input placeholder="输入活动名称(限制50字符)" :maxLength="50" style="width: 50%;"
 						v-model="formData.activeName" @blur="()=>{$refs.activeName.onFieldBlur()}" />
@@ -47,7 +55,7 @@
 						</upload-file>
 					</a-form-model-item>
 				</div>
-				<div>权益内容：
+				<div><span style="color: red;margin-right: 5px;">*</span>权益内容：
 					<UEditor @input="getRule"></UEditor>
 				</div>
 			</div>
@@ -104,11 +112,13 @@
 				<old-member ref="oldAward" @getOldData="getOldData" @getLimit="getLimit"></old-member>
 			</div>
 			<div class="award" v-if="theOldTwo">
-				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2" @getOldData="getOldData" @getLimit="getLimit">
+				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2" @getOldData="getOldData"
+					@getLimit="getLimit">
 				</old-member>
 			</div>
 			<div class="award" v-if="theOldThree">
-				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" @getOldData="getOldData" @getLimit="getLimit">
+				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" @getOldData="getOldData"
+					@getLimit="getLimit">
 				</old-member>
 			</div>
 			<div v-if="!theOldThree">
@@ -142,7 +152,7 @@
 		// },
 		data() {
 			return {
-				clubFissionVisible:true,
+				clubFissionVisible: true,
 				formData: {
 					activeName: '',
 					startDate: '',
@@ -154,6 +164,7 @@
 					newTemplateList: null,
 					newPCH: '',
 					newJF: '',
+					activeType: 'FL',
 				},
 				warnPCH: false,
 				warnJF: false,
@@ -194,7 +205,9 @@
 				oldAwardData: [],
 				timeLimit: 1,
 				theOldTwo: false,
-				theOldThree: false
+				theOldThree: false,
+				startNumber: 0,
+				endNumber: 0,
 			}
 		},
 		created() {
@@ -207,7 +220,11 @@
 			// console.log(res)
 		},
 		methods: {
-			...mapActions("userActivity", ["getCouponTemplates", "saveFriendFissionConfig", "getFriendFissionConfig"]),
+			...mapActions("userActivity", ["getCoupon", "saveFriendFissionConfig", "getFriendFissionConfig"]),
+			changeSelect(value) {
+				console.log(value)
+				this.formData.activeType = value
+			},
 			getLimit(n) {
 				this.timeLimit = n
 			},
@@ -222,6 +239,12 @@
 				this.$refs.ruleForm.validate(valid => {
 					if (valid) {
 						console.log('submit')
+						if (this.formData.content == '') {
+							this.$message.error({
+								content: "权益内容不能为空！",
+							})
+							return false
+						}
 						this.validateNew()
 					} else {
 						console.log('error submit!!');
@@ -269,6 +292,8 @@
 				const submitParam = {
 					//club是否展示
 					isShow: _this.isShowClub == true ? 1 : 0,
+					//活动标识
+					activeType: _this.formData.activeType,
 					//活动名称
 					title: _this.formData.activeName,
 					//活动时间
@@ -298,13 +323,18 @@
 				if (_this.formData.newTemplateList == null) {
 					submitParam.newCouponList = []
 				} else {
+					submitParam.newCouponList.length = 0
 					submitParam.newCouponList.push(_this.formData.newTemplateList)
 				}
-				// console.log(JSON.stringify(submitParam, null, 2))
-				const response = await _this.saveFriendFissionConfig(JSON.stringify(submitParam,null,2))
-				if(response.code == 200){
+				console.log(JSON.stringify(submitParam, null, 2))
+				const response = await _this.saveFriendFissionConfig(JSON.stringify(submitParam, null, 2))
+				if (response.code == 200) {
 					this.$message.success("保存成功");
 					this.cancelCallback()
+				} else if (response.code == 'fail') {
+					this.$message.error({
+						content: response.msg,
+					})
 				}
 			},
 			/**
@@ -312,10 +342,51 @@
 			 * @param {String} dateString
 			 */
 			getStartTime(moment, dateString) {
+				this.startNumber = moment._d.getTime()
+				const nowTime = +new Date()
+				if (this.startNumber < nowTime) {
+					this.$message.error({
+						content: "活动开始时间不能小于当前时间",
+					})
+					this.startTimeString = ''
+					this.startNumber = 0
+					this.formData.startDate = ''
+					return false
+				}
 				this.startTimeString = dateString
+				this.validateTime('start')
 			},
 			getEndTime(moment, dateString) {
+				this.endNumber = moment._d.getTime()
+				const nowTime = +new Date()
+				if (this.endNumber < nowTime) {
+					this.$message.error({
+						content: "活动结束时间不能小于当前时间",
+					})
+					this.endTimeString = ''
+					this.endNumber = 0
+					this.formData.endDate = ''
+					return false
+				}
 				this.endTimeString = dateString
+				this.validateTime('end')
+			},
+			validateTime(type) {
+				if (this.startTimeString == '' || this.endTimeString == '') return
+				if (this.endNumber < this.startNumber) {
+					this.$message.error({
+						content: "活动开始时间不能大于活动结束时间",
+					})
+					if (type == 'start') {
+						this.startTimeString = ''
+						this.startNumber = 0
+						this.formData.startDate = ''
+					} else {
+						this.endTimeString = ''
+						this.endNumber = 0
+						this.formData.endDate = ''
+					}
+				}
 			},
 			/**
 			 * 上传分享好友，朋友圈，背景
@@ -356,7 +427,7 @@
 						content: "请输入批次号",
 					})
 				} else {
-					const response = await this.getCouponTemplates({
+					const response = await this.getCoupon({
 						"templateCode": this.formData.newPCH
 					});
 					console.log(response)
@@ -365,6 +436,22 @@
 							content: response.msg,
 						})
 					} else {
+						if (this.formData.newAward == 1) {
+							//此时优惠券
+							if (response.data[0].couponTypeCode != 'DJQ') {
+								this.$message.error({
+									content: '请输入优惠券批次号',
+								})
+								return false
+							}
+						} else {
+							if (response.data[0].couponTypeCode != 'LPQ') {
+								this.$message.error({
+									content: '请输入礼品卡批次号',
+								})
+								return false
+							}
+						}
 						this.formData.newCouponId = response.data[0].templateCode
 						this.formData.newTemplateList = response.data[0]
 						this.isRemove = true
@@ -384,16 +471,17 @@
 			 * data Object
 			 * 获取老奖励数据
 			 */
-			getOldData(data,level) {
+			getOldData(data, level) {
+				if (level == 1) this.oldAwardData.length = 0
 				this.oldAwardData.push(data)
-				if(this.theOldTwo == true && level == 1) {
+				if (this.theOldTwo == true && level == 1) {
 					this.$refs.oldAwardTwo.validate()
 					return
 				}
-				if(this.theOldThree == true && level == 2){
+				if (this.theOldThree == true && level == 2) {
 					this.$refs.oldAwardThree.validate()
 					return
-				} 
+				}
 				this.clubFissionSubmit()
 			},
 			/**

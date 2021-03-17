@@ -5,7 +5,7 @@ import {
 	GETUSERREGCONFIG,
 	GETUSERINFOCONFIG,
 	GETUSERINVITECONFIG,
-	GETUSERACTIVITYCONFIG
+	GETUSERACTIVITYCONFIG,
 } from "../../mutations_type";
 import request from "@/utils/request";
 
@@ -16,10 +16,42 @@ const state = {
 	userRegConfig: {},
 	userInfoConfig: {},
 	userInviteConfig: {},
-	userActivityConfigs: []
+	userActivityConfigs: [],
+	activeConfig:''
 };
 
 const actions = {
+	async getFissionAwardShow({
+		commit
+	},payload){
+		console.log(commit)
+		return (await request({
+			url:'/content/admin/userBind/rewardList',
+			method:'POST',
+			data:payload
+		})).data
+	},
+	async exportFriendFission({
+		commit
+	},payload){
+		console.log(commit)
+		return (await request({
+			url:'/content/admin/userBind/recordDataExport',
+			method:'POST',
+			responseType: "arraybuffer",
+			data:payload
+		}))
+	},
+	async closeFriendFission({
+		commit
+	},payload){
+		console.log(commit)
+		return (await request({
+			url:'/content/admin/userBind/edit',
+			method:'POST',
+			data:payload
+		})).data
+	},
 	async getFriendFissionConfig({
 		commit
 	},payload){
@@ -29,6 +61,24 @@ const actions = {
 			method:'POST',
 			data:payload
 		})).data
+	},
+	async getCoupon({
+		commit
+	}, payload) {
+		const response = (
+			await request({
+				url: `/user/admin/userCoupon/auth/getTemplate`,
+				method: "POST",
+				data: payload
+			})
+		).data;
+		if (response.code == 200) {
+			let couponTemplates = response.data;
+			commit("GETCOUPONTEMPLATES", {
+				couponTemplates
+			});
+		}
+		return response;
 	},
 	async saveFriendFissionConfig({
 		commit

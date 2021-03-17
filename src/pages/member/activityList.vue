@@ -1,47 +1,37 @@
 <template>
 	<div class="activityList">
 		<a-table :data-source="activeData" :columns="columns" bordered :pagination="false"
-			:style="{ backgroundColor: '#ffffff' }">
-			<span slot="customTitle">
-				序号
-			</span>
-			<span slot="tags" slot-scope="tags">
-				<a-tag v-for="tag in tags" :key="tag"
-					:color="tag === 'loser' ? 'volcano' : tag.length > 5 ? 'geekblue' : 'green'">
-					{{ tag.toUpperCase() }}
+			:style="{ backgroundColor: '#ffffff'}" rowKey="activeId" :customRow="getAwardShow">
+			<span slot="status" slot-scope="text, record">
+				<a-tag v-if="text == 0" color="red">
+					未开启
+				</a-tag>
+				<template v-if="text == 1">
+					<a-tag color="green">
+						进行中
+					</a-tag>
+					<a-tag style="margin-left: 10px;cursor: pointer;" color="#2db7f5" @click="closeActivity(record)">
+						关闭
+					</a-tag>
+				</template>
+				<a-tag v-if="text == 2" color="red">
+					已结束
+				</a-tag>
+				<a-tag v-if="text == 3" color="red">
+					已关闭
 				</a-tag>
 			</span>
-			<span slot="action" slot-scope="text, record">
-				<a>Invite 一 {{ record.name }}</a>
-				<a-divider type="vertical" />
-				<a>Delete</a>
-				<a-divider type="vertical" />
-				<a class="ant-dropdown-link"> More actions
-					<a-icon type="down" />
-				</a>
-			</span>
-
-			<!-- 状态 -->
-			<!-- <template slot="status" slot-scope="text, record">
-				<span v-if="record.status">启用
-				</span>
-				<span v-else>禁用
-				</span>
-			</template> -->
-			<!-- 操作 -->
-			<!-- <template slot="action" slot-scope="text, record">
-				<span>
-					<a @click="changeRuleStatus(record.type, 'status', record.status)">{{
-		            record.status ? "禁用" : "启用"
-		          }}</a>
-				</span>
-
-				<a-divider type="vertical" />
-				<a @click="showConfigModal(record)">
-					配置
-				</a>
-			</template> -->
+			<template slot="action" slot-scope="text, record">
+				<a-button type="primary" v-if="record.status == 1" @click="exportExcel(record)"
+					:loading="exportLoading">
+					导出
+				</a-button>
+				<a-button type="primary" disabled v-else>
+					导出
+				</a-button>
+			</template>
 		</a-table>
+		<award-show :awardList="awardList"></award-show>
 	</div>
 </template>
 
@@ -49,64 +39,172 @@
 	import {
 		mapActions
 	} from 'vuex'
+	import {
+		exportFile
+	} from "@/utils/utils.js";
+	import awardShow from './components/AwardShow.vue'
 	export default {
 		name: 'activityList',
+		components:{awardShow},
 		data() {
 			return {
 				columns: [{
 						dataIndex: 'number',
+						key: 'number',
 						title: '序号',
+						scopedSlots: {
+							customRender: 'number'
+						}
 					},
 					{
 						dataIndex: 'activeId',
+						key: 'activeId',
 						title: '活动ID',
+						scopedSlots: {
+							customRender: 'activeId'
+						}
 					},
 					{
 						dataIndex: 'name',
+						key: 'name',
 						title: '名称',
+						scopedSlots: {
+							customRender: 'name'
+						}
 					},
 					{
 						dataIndex: 'status',
+						key: 'status',
 						title: '状态',
+						scopedSlots: {
+							customRender: 'status'
+						}
+					},
+					// {
+					// 	dataIndex: 'awardNumber',
+					// 	key: 'awardNumber',
+					// 	title: '剩余奖品数量',
+					// 	scopedSlots: {
+					// 		customRender: 'awardNumber'
+					// 	}
+					// },
+					{
+						dataIndex: 'isshow',
+						key: 'isshow',
+						title: '是否展示CLUB',
+						scopedSlots: {
+							customRender: 'isshow'
+						}
 					},
 					{
-						dataIndex: 'awardNumber',
-						title: '剩余奖品数量',
+						dataIndex: 'limit',
+						key: 'limit',
+						title: '是否限次',
+						scopedSlots: {
+							customRender: 'limit'
+						}
 					},
 					{
 						dataIndex: 'time',
+						key: 'time',
 						title: '时间',
+						scopedSlots: {
+							customRender: 'time'
+						}
+					},
+					{
+						dataIndex: 'action',
+						key: 'action',
+						title: '操作',
+						scopedSlots: {
+							customRender: 'action'
+						}
 					},
 				],
-				initData:{},
+				initData: {},
 				activeData: [],
+				exportLoading: false,
+				awardList:[],
 			}
 		},
 		created() {
 			this.getConfig(1, 10)
 		},
 		methods: {
-			...mapActions('userActivity', ['getFriendFissionConfig']),
+			...mapActions('userActivity', ['getFriendFissionConfig', 'closeFriendFission', 'exportFriendFission',
+				'getFissionAwardShow'
+			]),
+			getAwardShow(record) {
+				return {
+					on: {
+						dblclick: async () => {
+							const response = await this.getFissionAwardShow({
+								pageNum: 1,
+								pageSize: 10,
+								activeId: record.activeId
+							})
+							if(response.code == 200){
+								this.$set(this,'awardList',response.data.list)
+							}
+						}
+					}
+				}
+			},
+			//获得活动列表
 			async getConfig(pageNum, pageSize) {
 				const res = await this.getFriendFissionConfig({
 					pageNum,
 					pageSize
 				})
-				if(res.code == 200){
+				console.log(res)
+				if (res.code == 200) {
 					this.initData = res.data
-					this.activeData = res.data.list.map((item,index)=>{
+					this.activeData = res.data.list.map((item, index) => {
 						return {
-							number:index+1,
-							activeId:item.id,
-							name:item.title,
-							status:item.activeStatus,
-							awardNumber:item.timeLimit,
-							time:`${item.startTime.slice(0,-3)}--${item.endTime.slice(0,-3)}`
+							number: index + 1,
+							activeId: item.id,
+							name: item.title,
+							status: item.activeStatus,
+							limit: item.timeLimit == 1 ? '限次' : '不限次',
+							isshow: item.isShow == 0 ? '不展示' : '展示',
+							time: `${item.startTime.slice(0,-3)}--${item.endTime.slice(0,-3)}`
 						}
 					})
 					console.log(this.activeData)
 				}
-			}
+			},
+			//关闭正在进行的活动
+			async closeActivity(record) {
+				const {
+					activeId
+				} = record
+				const response = await this.closeFriendFission({
+					id: activeId,
+					activeStatus: 3
+				})
+				if (response.code == 200) {
+					this.getConfig(1, 10)
+				}
+			},
+			//导出excel
+			async exportExcel(record) {
+				this.exportLoading = true;
+				this.$message.loading({
+					content: "正在导出",
+					key: "exportStatistics",
+					duration: 2
+				});
+				// console.log(record)
+				let {
+					activeId
+				} = record;
+				let response = await this.exportFriendFission({
+					activeId
+				});
+				const fileName = response.headers['content-disposition'].slice(20, -5)
+				exportFile(response.data, fileName);
+				this.exportLoading = false;
+			},
 		}
 	}
 </script>
