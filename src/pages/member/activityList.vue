@@ -1,6 +1,6 @@
 <template>
 	<div class="activityList">
-		<a-table :data-source="activeData" :columns="columns" bordered :pagination="false"
+		<a-table :data-source="activeData" :columns="columns" bordered :pagination="pagination"
 			:style="{ backgroundColor: '#ffffff'}" rowKey="activeId" :customRow="getAwardShow">
 			<span slot="status" slot-scope="text, record">
 				<a-tag v-if="text == 0" color="red">
@@ -31,7 +31,7 @@
 				</a-button>
 			</template>
 		</a-table>
-		<award-show :awardList="awardList"></award-show>
+		<award-show :awardList="awardList" @cancel="awardShow = false" v-if="awardShow"></award-show>
 	</div>
 </template>
 
@@ -125,10 +125,14 @@
 				activeData: [],
 				exportLoading: false,
 				awardList:[],
+				awardShow:false,
+				pagination:{
+					pageSize:10
+				}
 			}
 		},
 		created() {
-			this.getConfig(1, 10)
+			this.getConfig(1, 100)
 		},
 		methods: {
 			...mapActions('userActivity', ['getFriendFissionConfig', 'closeFriendFission', 'exportFriendFission',
@@ -139,12 +143,12 @@
 					on: {
 						dblclick: async () => {
 							const response = await this.getFissionAwardShow({
-								pageNum: 1,
-								pageSize: 10,
-								activeId: record.activeId
+								id: record.activeId
 							})
 							if(response.code == 200){
-								this.$set(this,'awardList',response.data.list)
+								console.log(response)
+								this.$set(this,'awardList',response.data)
+								this.awardShow = true
 							}
 						}
 					}
@@ -183,7 +187,7 @@
 					activeStatus: 3
 				})
 				if (response.code == 200) {
-					this.getConfig(1, 10)
+					this.getConfig(1, 100)
 				}
 			},
 			//导出excel

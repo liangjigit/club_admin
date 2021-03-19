@@ -13,8 +13,14 @@
 				</a-radio-group>
 			</a-form-model-item>
 		</div>
-		<div class="award-set-detail" style="border: 1px solid #3A87AD;" v-if="awardOne">
-			<p style="color: red;margin-top: 10px;">*奖励所有设置均为必填项</p>
+		<div class="award-set-detail" style="border: 1px solid #3A87AD;padding-top: 10px;" v-if="awardOne">
+			<p style="color: red;display: flex;justify-content: space-between;align-items: center;">
+				<span>*奖励所有设置均为必填项</span>
+				<a-icon type="close-circle" style="margin-right: 15px;font-size: 20px;cursor: pointer;"
+					v-if="oldLevel == 2 && !isCloseB" @click="deleteOld" />
+				<a-icon type="close-circle" style="margin-right: 15px;font-size: 20px;cursor: pointer;"
+					v-if="oldLevel == 3 && isCloseB" @click="deleteOld" />
+			</p>
 			<div>
 				奖励名称：
 				<a-input placeholder="输入奖励名称" :maxLength="8" style="width: 20%;" v-model="oldInvite.nameOn"
@@ -101,6 +107,10 @@
 			oldLevel: {
 				type: Number,
 				default: 1
+			},
+			isCloseB: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data() {
@@ -137,8 +147,14 @@
 				}
 			}
 		},
+		created() {
+			// console.log(this.oldLevel,this.isCloseB)
+		},
 		methods: {
 			...mapActions("userActivity", ["getCoupon"]),
+			deleteOld() {
+				this.$emit('deleteOld', this.oldLevel)
+			},
 			/**
 			 * 验证老用户奖励方法
 			 */
@@ -281,7 +297,7 @@
 				const paramOn = {
 					isNewVip: 1,
 					//奖品名称
-					prizeName: _this.oldInvite.nameOn,
+					prizeName: _this.oldInvite.nameOn.toString(),
 					//邀请人数
 					inviteCount: parseInt(_this.oldInvite.peopleOn),
 					prizeImg: _this.oldInvite.imageOn == '' ? null : _this.oldInvite.imageOn,

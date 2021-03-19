@@ -42,14 +42,14 @@
 						</div>
 						<upload-file @uploadPic="uploadFPic" :img="friend.image" v-model="friend.image"></upload-file>
 					</a-form-model-item>
-					<a-form-model-item label="朋友圈分享" extra="png/jpg格式，2M以内">
+					<!-- <a-form-model-item label="朋友圈分享" extra="png/jpg格式，2M以内">
 						<div>朋友圈分享标题：
 							<a-input placeholder="输入朋友圈分享标题(限制20字符)" :maxLength="20" style="width: 30%;"
 								v-model="friendC.title" />
 						</div>
 						<upload-file @uploadPic="uploadFCPic" :img="friendC.image" v-model="friendC.image">
 						</upload-file>
-					</a-form-model-item>
+					</a-form-model-item> -->
 					<a-form-model-item label="活动主题页背景" extra="png/jpg格式，2M以内">
 						<upload-file @uploadPic="uploadBPic" :img="activeBackImage" v-model="activeBackImage">
 						</upload-file>
@@ -112,16 +112,16 @@
 				<old-member ref="oldAward" @getOldData="getOldData" @getLimit="getLimit"></old-member>
 			</div>
 			<div class="award" v-if="theOldTwo">
-				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2" @getOldData="getOldData"
-					@getLimit="getLimit">
+				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2"  :isCloseB="closeB" @getOldData="getOldData"
+					@getLimit="getLimit" @deleteOld="theOldTwo = false">
 				</old-member>
 			</div>
 			<div class="award" v-if="theOldThree">
-				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" @getOldData="getOldData"
-					@getLimit="getLimit">
+				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" :isCloseB="closeB" @getOldData="getOldData"
+					@getLimit="getLimit" @deleteOld="theOldThree = false">
 				</old-member>
 			</div>
-			<div v-if="!theOldThree">
+			<div v-if="isshowAdd">
 				<a-button type="primary" @click="addOldAward" style="margin-top: 10px;">
 					增加奖励
 				</a-button>
@@ -152,6 +152,8 @@
 		// },
 		data() {
 			return {
+				closeB:false,
+				isshowAdd: true,
 				clubFissionVisible: true,
 				formData: {
 					activeName: '',
@@ -500,6 +502,37 @@
 			cancelCallback() {
 				this.$emit('cancel')
 			},
+		},
+		computed: {
+			// isShowAddAward(){
+			// 	return this.theOldTwo || this.theOldThree
+			// }
+		},
+		watch: {
+			theOldTwo() {
+				if (this.theOldTwo == true && this.theOldThree == true) {
+					this.isshowAdd = false
+				} else {
+					this.isshowAdd = true
+				}
+				if(this.theOldTwo == true && this.theOldThree == false){
+					this.closeB = false
+				}else{
+					this.closeB = true
+				}
+			},
+			theOldThree() {
+				if (this.theOldTwo == true && this.theOldThree == true) {
+					this.isshowAdd = false
+				} else {
+					this.isshowAdd = true
+				}
+				if(this.theOldTwo == true && this.theOldThree == false){
+					this.closeB = false
+				}else{
+					this.closeB = true
+				}
+			}
 		}
 	}
 </script>

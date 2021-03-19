@@ -26,7 +26,7 @@ const actions = {
 	},payload){
 		console.log(commit)
 		return (await request({
-			url:'/content/admin/userBind/rewardList',
+			url:'/content/admin/userBind/queryActivity',
 			method:'POST',
 			data:payload
 		})).data
