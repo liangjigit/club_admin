@@ -21,9 +21,8 @@
 					<a-input placeholder="输入活动名称(限制50字符)" :maxLength="50" style="width: 50%;"
 						v-model="formData.activeName" @blur="()=>{$refs.activeName.onFieldBlur()}" />
 				</a-form-model-item>
-				<div>
-					活动时间：
-					<a-form-model-item label="开始时间" required prop="startDate">
+				<div style="display: flex;">
+					<!-- <a-form-model-item label="开始时间" required prop="startDate">
 						<a-date-picker v-model="formData.startDate" :show-time="showTimeOptions" type="date"
 							placeholder="选择开始时间" style="width: 50%;" :allowClear="false" format="YYYY-MM-DD HH:mm:ss"
 							@change="getStartTime" />
@@ -32,6 +31,19 @@
 						<a-date-picker v-model="formData.endDate" :show-time="showTimeOptions" type="date"
 							placeholder="选择结束时间" style="width: 50%;" :allowClear="false" format="YYYY-MM-DD HH:mm:ss"
 							@change="getEndTime" />
+					</a-form-model-item> -->
+					<a-form-model-item label="开始时间" required prop="startDate">
+						<a-date-picker v-model="formData.startDate" :disabled-date="disabledStartDate"
+							format="YYYY-MM-DD HH:mm:ss" placeholder="开始时间" @openChange="handleStartOpenChange"
+							:allowClear="false" :show-time="{ defaultValue: moment('00:00:00', 'HH:mm:ss') }"
+							@change="getStartTime" />
+					</a-form-model-item>
+					<div style="width: 10px;"></div>
+					<a-form-model-item label="结束时间" required prop="endDate">
+						<a-date-picker v-model="formData.endDate" :disabled-date="disabledEndDate"
+							format="YYYY-MM-DD HH:mm:ss" placeholder="结束时间" :open="endOpen" :allowClear="false"
+							@openChange="handleEndOpenChange"
+							:show-time="{ defaultValue: moment('23:59:59', 'HH:mm:ss') }" @change="getEndTime" />
 					</a-form-model-item>
 				</div>
 				<div>
@@ -112,13 +124,13 @@
 				<old-member ref="oldAward" @getOldData="getOldData" @getLimit="getLimit"></old-member>
 			</div>
 			<div class="award" v-if="theOldTwo">
-				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2"  :isCloseB="closeB" @getOldData="getOldData"
-					@getLimit="getLimit" @deleteOld="theOldTwo = false">
+				<old-member ref="oldAwardTwo" :isShowMore="false" :oldLevel="2" :isCloseB="closeB"
+					@getOldData="getOldData" @getLimit="getLimit" @deleteOld="theOldTwo = false">
 				</old-member>
 			</div>
 			<div class="award" v-if="theOldThree">
-				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" :isCloseB="closeB" @getOldData="getOldData"
-					@getLimit="getLimit" @deleteOld="theOldThree = false">
+				<old-member ref="oldAwardThree" :isShowMore="false" :oldLevel="3" :isCloseB="closeB"
+					@getOldData="getOldData" @getLimit="getLimit" @deleteOld="theOldThree = false">
 				</old-member>
 			</div>
 			<div v-if="isshowAdd">
@@ -134,6 +146,7 @@
 	import uploadFile from "../../components/UploadFile"
 	import UEditor from "../../components/UEditor.vue"
 	import oldMember from "./oldMember.vue"
+	import moment from 'moment'
 	import {
 		mapActions
 	} from 'vuex'
@@ -152,7 +165,7 @@
 		// },
 		data() {
 			return {
-				closeB:false,
+				closeB: false,
 				isshowAdd: true,
 				clubFissionVisible: true,
 				formData: {
@@ -210,19 +223,34 @@
 				theOldThree: false,
 				startNumber: 0,
 				endNumber: 0,
+				endOpen: false,
 			}
-		},
-		created() {
-			// const res = this.getFriendFissionConfig({
-			// 	pageNum:"1",
-			// 	pageSize:"10"
-			// })
-			// const a = "[{\"couponAmount\":999,\"couponName\":\"分裂活动新用户优惠券啊\",\"couponNum\":1,\"instructions\":\"\",\"subheading\":\"副标题-分裂活动新用户优惠券啊\",\"templateCode\":\"JT20210305000001\"}]";
-			// let res =JSON.parse(a)
-			// console.log(res)
 		},
 		methods: {
 			...mapActions("userActivity", ["getCoupon", "saveFriendFissionConfig", "getFriendFissionConfig"]),
+			moment,
+			disabledStartDate(startValue) {
+				const endValue = this.formData.endDate;
+				if (!startValue || !endValue) {
+					return startValue && startValue < moment().endOf('day');
+				}
+				return startValue.valueOf() > endValue.valueOf() || (startValue && startValue < moment().endOf('day'))
+			},
+			disabledEndDate(endValue) {
+				const startValue = this.formData.startDate;
+				if (!endValue || !startValue) {
+					return endValue && endValue < moment().endOf('day');
+				}
+				return startValue.valueOf() > endValue.valueOf();
+			},
+			handleStartOpenChange(open) {
+				if (!open) {
+					this.endOpen = true;
+				}
+			},
+			handleEndOpenChange(open) {
+				this.endOpen = open;
+			},
 			changeSelect(value) {
 				console.log(value)
 				this.formData.activeType = value
@@ -345,31 +373,31 @@
 			 */
 			getStartTime(moment, dateString) {
 				this.startNumber = moment._d.getTime()
-				const nowTime = +new Date()
-				if (this.startNumber < nowTime) {
-					this.$message.error({
-						content: "活动开始时间不能小于当前时间",
-					})
-					this.startTimeString = ''
-					this.startNumber = 0
-					this.formData.startDate = ''
-					return false
-				}
+				// const nowTime = +new Date()
+				// if (this.startNumber < nowTime) {
+				// 	this.$message.error({
+				// 		content: "活动开始时间不能小于当前时间",
+				// 	})
+				// 	this.startTimeString = ''
+				// 	this.startNumber = 0
+				// 	this.formData.startDate = ''
+				// 	return false
+				// }
 				this.startTimeString = dateString
 				this.validateTime('start')
 			},
 			getEndTime(moment, dateString) {
 				this.endNumber = moment._d.getTime()
-				const nowTime = +new Date()
-				if (this.endNumber < nowTime) {
-					this.$message.error({
-						content: "活动结束时间不能小于当前时间",
-					})
-					this.endTimeString = ''
-					this.endNumber = 0
-					this.formData.endDate = ''
-					return false
-				}
+				// const nowTime = +new Date()
+				// if (this.endNumber < nowTime) {
+				// 	this.$message.error({
+				// 		content: "活动结束时间不能小于当前时间",
+				// 	})
+				// 	this.endTimeString = ''
+				// 	this.endNumber = 0
+				// 	this.formData.endDate = ''
+				// 	return false
+				// }
 				this.endTimeString = dateString
 				this.validateTime('end')
 			},
@@ -515,9 +543,9 @@
 				} else {
 					this.isshowAdd = true
 				}
-				if(this.theOldTwo == true && this.theOldThree == false){
+				if (this.theOldTwo == true && this.theOldThree == false) {
 					this.closeB = false
-				}else{
+				} else {
 					this.closeB = true
 				}
 			},
@@ -527,9 +555,9 @@
 				} else {
 					this.isshowAdd = true
 				}
-				if(this.theOldTwo == true && this.theOldThree == false){
+				if (this.theOldTwo == true && this.theOldThree == false) {
 					this.closeB = false
-				}else{
+				} else {
 					this.closeB = true
 				}
 			}
