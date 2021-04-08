@@ -47,11 +47,9 @@
 					</a-form-model-item>
 				</div>
 				<div>
-					<a-form-model-item label="好友邀请卡片" extra="png/jpg格式，2M以内">
-						<div>好友分享标题：
-							<a-input placeholder="输入好友分享标题(限制20字符)" :maxLength="20" style="width: 30%;"
+					<a-form-model-item label="好友分享标题" extra="图片比例5:4,png/jpg格式,2M以内">
+							<a-input placeholder="输入分享标题(限制20字符)" :maxLength="20" style="width: 30%;"
 								v-model="friend.title" />
-						</div>
 						<upload-file @uploadPic="uploadFPic" :img="friend.image" v-model="friend.image"></upload-file>
 					</a-form-model-item>
 					<!-- <a-form-model-item label="朋友圈分享" extra="png/jpg格式，2M以内">
@@ -62,7 +60,7 @@
 						<upload-file @uploadPic="uploadFCPic" :img="friendC.image" v-model="friendC.image">
 						</upload-file>
 					</a-form-model-item> -->
-					<a-form-model-item label="活动主题页背景" extra="png/jpg格式，2M以内">
+					<a-form-model-item label="活动主题页背景" extra="图片尺寸750*1350,png/jpg格式,2M以内">
 						<upload-file @uploadPic="uploadBPic" :img="activeBackImage" v-model="activeBackImage">
 						</upload-file>
 					</a-form-model-item>
@@ -113,7 +111,7 @@
 								请添加{{formData.newAward == 1 ? '优惠券' : '礼品卡'}}</p>
 						</div>
 						<div v-show="formData.newAward == 2">
-							<a-input placeholder="输入积分" :maxLength="20" style="width: 30%;" v-model="formData.newJF"
+							<a-input placeholder="输入积分" :maxLength="2" style="width: 30%;" v-model="formData.newJF"
 								@blur="checkJF" />
 							<p style="color: red;margin-top: 5px;" v-show="warnJF">请填写积分</p>
 						</div>
@@ -232,14 +230,14 @@
 			disabledStartDate(startValue) {
 				const endValue = this.formData.endDate;
 				if (!startValue || !endValue) {
-					return startValue && startValue < moment().endOf('day');
+					return startValue && startValue < (moment().endOf('day') - 1000*3600*24);
 				}
-				return startValue.valueOf() > endValue.valueOf() || (startValue && startValue < moment().endOf('day'))
+				return startValue.valueOf() > endValue.valueOf() || (startValue && startValue < (moment().endOf('day') - 1000*3600*24))
 			},
 			disabledEndDate(endValue) {
 				const startValue = this.formData.startDate;
 				if (!endValue || !startValue) {
-					return endValue && endValue < moment().endOf('day');
+					return endValue && endValue < (moment().endOf('day') - 1000*3600*24);
 				}
 				return startValue.valueOf() > endValue.valueOf();
 			},
@@ -325,7 +323,7 @@
 					//活动标识
 					activeType: _this.formData.activeType,
 					//活动名称
-					title: _this.formData.activeName,
+					title: _this.formData.activeName.toString(),
 					//活动时间
 					startTime: _this.startTimeString,
 					endTime: _this.endTimeString,
@@ -338,7 +336,7 @@
 					//活动主题背景
 					themeBg: _this.activeBackImage || null,
 					//权益内容
-					content: _this.formData.content || null,
+					content: _this.formData.content.toString() || null,
 					newIsNewVip: 0,
 					//被邀请人（新会员）（一张券）
 					newRewardType: parseInt(_this.formData.newAward),

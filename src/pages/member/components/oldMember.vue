@@ -13,7 +13,7 @@
 				</a-radio-group>
 			</a-form-model-item>
 		</div>
-		<div class="award-set-detail" style="border: 1px solid #3A87AD;padding-top: 10px;" v-if="awardOne">
+		<div class="award-set-detail" style="border: 1px solid #3A87AD;padding-top: 10px;border-radius: 10px;" v-if="awardOne">
 			<p style="color: red;display: flex;justify-content: space-between;align-items: center;">
 				<span>*奖励所有设置均为必填项</span>
 				<a-icon type="close-circle" style="margin-right: 15px;font-size: 20px;cursor: pointer;"
@@ -23,13 +23,13 @@
 			</p>
 			<div>
 				奖励名称：
-				<a-input placeholder="输入奖励名称" :maxLength="8" style="width: 20%;" v-model="oldInvite.nameOn"
+				<a-input placeholder="输入奖励名称" :maxLength="10" style="width: 20%;" v-model="oldInvite.nameOn"
 					@blur="blurValidate(1)" />
 				<p style="color: red;" v-show="warn.warnName">请输入奖励名称</p>
 			</div>
 			<div>
 				邀请人数：
-				<a-input placeholder="输入邀请人数" :maxLength="3" style="width: 20%;" v-model="oldInvite.peopleOn"
+				<a-input placeholder="输入邀请人数" :maxLength="2" style="width: 20%;" v-model="oldInvite.peopleOn"
 					@blur="blurValidate(2)" />
 				<p style="color: red;" v-show="warn.warnPeople">请输入邀请人数</p>
 			</div>
@@ -55,7 +55,7 @@
 			</div>
 			<div v-if="couponId == null" style="margin-bottom: 10px;">
 				<div v-show="oldInvite.typeOn == 2">
-					<a-input placeholder="输入积分" :maxLength="3" style="width: 30%;" v-model="oldJF"
+					<a-input placeholder="输入积分" :maxLength="2" style="width: 30%;" v-model="oldJF"
 						@blur="blurValidate(3)" />
 					<p style="color: red;margin-top: 5px;" v-show="warn.warnJF">请输入积分</p>
 				</div>
@@ -70,7 +70,7 @@
 					</p>
 				</div>
 			</div>
-			<a-form-model-item label="礼品卡图片" extra="png/jpg格式，2M以内" v-if="oldInvite.typeOn == 3">
+			<a-form-model-item label="礼品卡图片" extra="图片比例1:1,png/jpg格式,2M以内" v-if="oldInvite.typeOn == 3">
 				<upload-file @uploadPic="uploadPicOn" :img="oldInvite.imageOn" v-model="oldInvite.imageOn" v-if="oldLevel == 1">
 				</upload-file>
 				<upload-file @uploadPic="uploadPicTw" :img="oldInvite.imageTw" v-model="oldInvite.imageTw" v-if="oldLevel == 2">
