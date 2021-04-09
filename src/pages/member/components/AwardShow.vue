@@ -6,30 +6,30 @@
 			<div class="basic" v-if="awardList != null">
 				<div>
 					是否club展示：
-					<a-tag color="cyan">
+					<a-tag color="#1890ff">
 						{{awardList.isShow == 1 ? '展示' : '不展示'}}
 					</a-tag>
 				</div>
 				<div>
 					活动标识：
-					<a-tag color="cyan">
+					<a-tag color="#1890ff">
 						{{awardList.activeType}}
 					</a-tag>
 				</div>
 				<a-form-model-item label="活动名称">
-					<a-tag color="cyan">
+					<a-tag color="#1890ff">
 						{{awardList.title}}
 					</a-tag>
 				</a-form-model-item>
 				<div>
 					活动时间：
 					<a-form-model-item label="开始时间">
-						<a-tag color="cyan">
+						<a-tag color="#1890ff">
 							{{awardList.startTime}}
 						</a-tag>
 					</a-form-model-item>
 					<a-form-model-item label="结束时间">
-						<a-tag color="cyan">
+						<a-tag color="#1890ff">
 							{{awardList.endTime}}
 						</a-tag>
 					</a-form-model-item>
@@ -37,7 +37,7 @@
 				<div>
 					<a-form-model-item label="好友邀请卡片" v-if="awardList.friendsTitle && awardList.friendsBg">
 						<div v-if="awardList.friendsTitle != null">好友分享标题：
-							<a-tag color="cyan">
+							<a-tag color="#1890ff">
 								{{awardList.friendsTitle}}
 							</a-tag>
 						</div>
@@ -48,7 +48,7 @@
 					</a-form-model-item>
 				</div>
 				<div>权益内容：
-					<a-tag color="cyan">
+					<a-tag color="#1890ff">
 						<div v-html="awardList.content"></div>
 					</a-tag>
 				</div>
@@ -59,18 +59,23 @@
 				<div class="award-set-detail">
 					<div>
 						<div v-if="awardList.newRewardType == 1">
-							<a-tag color="cyan">
+							<a-tag color="#1890ff">
 								{{newCouponList[0].couponName}}
 							</a-tag>
 						</div>
-						<div v-if="awardList.newRewardType == 2">
-							<a-tag color="cyan">
+						<div v-else-if="awardList.newRewardType == 2">
+							<a-tag color="#1890ff">
 								{{awardList.newIntegral}}积分
 							</a-tag>
 						</div>
-						<div v-if="awardList.newRewardType == 3">
-							<a-tag color="cyan">
+						<div v-else-if="awardList.newRewardType == 3">
+							<a-tag color="#1890ff">
 								{{newCouponList[0].couponName}}
+							</a-tag>
+						</div>
+						<div v-else>
+							<a-tag color="#1890ff">
+								未设置新会员奖励
 							</a-tag>
 						</div>
 					</div>
@@ -78,54 +83,135 @@
 				<div class="award-set">老会员奖励:</div>
 				<div class="award-set-detail">
 					<div v-if="oldCouponList[0]">
-						<div v-if="oldCouponList[0].rewardType == 1">
-							<a-tag color="cyan">
-								{{oldListOn[0].couponName}}
-							</a-tag>
+						<div v-if="oldCouponList[0].rewardType == 1" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldListOn[0].couponName}}
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[0].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
-						<div v-if="oldCouponList[0].rewardType == 2">
-							<a-tag color="cyan">
-								{{oldCouponList[0].integral}}积分
-							</a-tag>
+						<div v-if="oldCouponList[0].rewardType == 2" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldCouponList[0].integral}}积分
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[0].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
-						<div v-if="oldCouponList[0].rewardType == 3">
-							<a-tag color="cyan">
-								{{oldListOn[0].couponName}}
-							</a-tag>
+						<div v-if="oldCouponList[0].rewardType == 3" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldListOn[0].couponName}}
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[0].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
 					</div>
 					<div v-if="oldCouponList[1]">
-						<div v-if="oldCouponList[1].rewardType == 1">
-							<a-tag color="cyan">
-								{{oldListTw[0].couponName}}
-							</a-tag>
+						<div v-if="oldCouponList[1].rewardType == 1" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldListTw[0].couponName}}
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[1].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
-						<div v-if="oldCouponList[1].rewardType == 2">
-							<a-tag color="cyan">
-								{{oldCouponList[1].integral}}积分
-							</a-tag>
+						<div v-if="oldCouponList[1].rewardType == 2" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldCouponList[1].integral}}积分
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[1].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
-						<div v-if="oldCouponList[1].rewardType == 3">
-							<a-tag color="cyan">
-								{{oldListTw[0].couponName}}
-							</a-tag>
+						<div v-if="oldCouponList[1].rewardType == 3" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldListTw[0].couponName}}
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[1].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
 					</div>
 					<div v-if="oldCouponList[2]">
-						<div v-if="oldCouponList[2].rewardType == 1">
-							<a-tag color="cyan">
-								{{oldListTh[0].couponName}}
-							</a-tag>
+						<div v-if="oldCouponList[2].rewardType == 1" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldListTh[0].couponName}}
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[2].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
-						<div v-if="oldCouponList[2].rewardType == 2">
-							<a-tag color="cyan">
-								{{oldCouponList[2].integral}}积分
-							</a-tag>
+						<div v-if="oldCouponList[2].rewardType == 2" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldCouponList[2].integral}}积分
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[2].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
-						<div v-if="oldCouponList[2].rewardType == 3">
-							<a-tag color="cyan">
-								{{oldListTh[0].couponName}}
-							</a-tag>
+						<div v-if="oldCouponList[2].rewardType == 3" class="old-border">
+							<div>
+								奖励：
+								<a-tag color="#1890ff">
+									{{oldListTh[0].couponName}}
+								</a-tag>
+							</div>
+							<div>
+								人数:
+								<a-tag color="#1890ff">
+									{{oldCouponList[2].inviteCount}}
+								</a-tag>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -149,20 +235,20 @@
 			return {
 				awardShow: true,
 				newCouponList: null,
-				oldCouponList:null,
-				oldListOn:null,
-				oldListTw:null,
-				oldListTh:null,
+				oldCouponList: null,
+				oldListOn: null,
+				oldListTw: null,
+				oldListTh: null,
 			}
 		},
 		created() {
 			this.newCouponList = JSON.parse(this.awardList.newCouponList)
-			this.oldCouponList = this.awardList.activityRewardList.sort(function(a,b){
+			this.oldCouponList = this.awardList.activityRewardList.sort(function(a, b) {
 				return a.inviteCount - b.inviteCount
 			})
-			if(this.oldCouponList[0]) this.oldListOn = JSON.parse(this.oldCouponList[0].couponList) 
-			if(this.oldCouponList[1]) this.oldListTw = JSON.parse(this.oldCouponList[1].couponList)
-			if(this.oldCouponList[2]) this.oldListTh = JSON.parse(this.oldCouponList[2].couponList)
+			if (this.oldCouponList[0]) this.oldListOn = JSON.parse(this.oldCouponList[0].couponList)
+			if (this.oldCouponList[1]) this.oldListTw = JSON.parse(this.oldCouponList[1].couponList)
+			if (this.oldCouponList[2]) this.oldListTh = JSON.parse(this.oldCouponList[2].couponList)
 			// console.log(this.oldListOn)
 		},
 		methods: {
@@ -193,5 +279,12 @@
 
 	.award-set-detail {
 		padding-left: 40px;
+	}
+
+	.old-border {
+		border: 1px solid #1890ff;
+		border-radius: 5px;
+		width: fit-content;
+		padding: 10px;
 	}
 </style>

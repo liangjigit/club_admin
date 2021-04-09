@@ -2,33 +2,27 @@
 	<div class="activityList">
 		<a-table :data-source="activeData" :columns="columns" bordered :pagination="pagination"
 			:style="{ backgroundColor: '#ffffff'}" rowKey="activeId" :customRow="getAwardShow">
-			<span slot="status" slot-scope="text, record">
-				<a-tag v-if="text == 0" color="red">
-					未开启
-				</a-tag>
-				<template v-if="text == 1">
-					<a-tag color="green">
-						进行中
-					</a-tag>
-					<a-tag style="margin-left: 10px;cursor: pointer;" color="#2db7f5" @click="closeActivity(record)">
-						关闭
-					</a-tag>
-				</template>
-				<a-tag v-if="text == 2" color="red">
-					已结束
-				</a-tag>
-				<a-tag v-if="text == 3" color="red">
-					已关闭
-				</a-tag>
+			<span slot="status" slot-scope="text">
+				<span v-if="text == 0">未开启</span>
+				<span v-if="text == 1">进行中</span>
+				<span v-if="text == 2">已结束</span>
+				<span v-if="text == 3">已关闭</span>
 			</span>
 			<template slot="action" slot-scope="text, record">
-				<a-button type="primary" v-if="record.status == 1" @click="exportExcel(record)"
-					:loading="exportLoading">
-					导出
+				<a-button type="link" @click="closeActivity(record)">
+					关闭
 				</a-button>
-				<a-button type="primary" disabled v-else>
-					导出
-				</a-button>
+				<a-divider type="vertical" />
+				<template v-if="record.status != 0">
+					<a-button type="link" @click="exportExcel(record)" :loading="exportLoading">
+						导出
+					</a-button>
+				</template>
+				<template v-else>
+					<a-button type="link" disabled>
+						导出
+					</a-button>
+				</template>
 			</template>
 		</a-table>
 		<award-show :awardList="awardList" @cancel="awardShow = false" v-if="awardShow"></award-show>
@@ -45,7 +39,9 @@
 	import awardShow from './components/AwardShow.vue'
 	export default {
 		name: 'activityList',
-		components:{awardShow},
+		components: {
+			awardShow
+		},
 		data() {
 			return {
 				columns: [{
@@ -124,15 +120,18 @@
 				initData: {},
 				activeData: [],
 				exportLoading: false,
-				awardList:[],
-				awardShow:false,
-				pagination:{
-					pageSize:10
+				awardList: [],
+				awardShow: false,
+				pagination: {
+					pageSize: 10,
+					total:0,
+					showTotal:total => `总计${total}条数据`,
+					showSizeChanger:true
 				}
 			}
 		},
 		created() {
-			this.getConfig(1, 100)
+			this.getConfig(1, 1000)
 		},
 		methods: {
 			...mapActions('userActivity', ['getFriendFissionConfig', 'closeFriendFission', 'exportFriendFission',
@@ -145,9 +144,9 @@
 							const response = await this.getFissionAwardShow({
 								id: record.activeId
 							})
-							if(response.code == 200){
+							if (response.code == 200) {
 								console.log(response)
-								this.$set(this,'awardList',response.data)
+								this.$set(this, 'awardList', response.data)
 								this.awardShow = true
 							}
 						}
@@ -174,6 +173,7 @@
 							time: `${item.startTime.slice(0,-3)}--${item.endTime.slice(0,-3)}`
 						}
 					})
+					this.pagination.total = this.activeData.length
 					console.log(this.activeData)
 				}
 			},

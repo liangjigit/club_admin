@@ -5,11 +5,11 @@
 		<a-form-model ref="ruleForm" :model="formData" :rules="rules">
 			<div class="title">基础设置</div>
 			<div class="basic">
-				<div>
+				<div style="margin-bottom: 20px;">
 					是否club展示：
 					<a-switch checked-children="是" un-checked-children="否" v-model="isShowClub" />
 				</div>
-				<div>
+				<div style="margin-bottom: 10px;">
 					活动标识：
 					<a-select default-value="FL" style="width: 10%" @change="changeSelect">
 						<a-select-option value="FL">
@@ -17,7 +17,7 @@
 						</a-select-option>
 					</a-select>
 				</div>
-				<a-form-model-item label="活动名称" ref="activeName" prop="activeName">
+				<a-form-model-item label="活动名称" ref="activeName" prop="activeName" style="margin-bottom: 10px;">
 					<a-input placeholder="输入活动名称(限制50字符)" :maxLength="50" style="width: 50%;"
 						v-model="formData.activeName" @blur="()=>{$refs.activeName.onFieldBlur()}" />
 				</a-form-model-item>
@@ -32,14 +32,14 @@
 							placeholder="选择结束时间" style="width: 50%;" :allowClear="false" format="YYYY-MM-DD HH:mm:ss"
 							@change="getEndTime" />
 					</a-form-model-item> -->
-					<a-form-model-item label="开始时间" required prop="startDate">
+					<a-form-model-item label="开始时间" required prop="startDate" style="margin-bottom: 10px;">
 						<a-date-picker v-model="formData.startDate" :disabled-date="disabledStartDate"
 							format="YYYY-MM-DD HH:mm:ss" placeholder="开始时间" @openChange="handleStartOpenChange"
 							:allowClear="false" :show-time="{ defaultValue: moment('00:00:00', 'HH:mm:ss') }"
 							@change="getStartTime" />
 					</a-form-model-item>
 					<div style="width: 10px;"></div>
-					<a-form-model-item label="结束时间" required prop="endDate">
+					<a-form-model-item label="结束时间" required prop="endDate" style="margin-bottom: 10px;">
 						<a-date-picker v-model="formData.endDate" :disabled-date="disabledEndDate"
 							format="YYYY-MM-DD HH:mm:ss" placeholder="结束时间" :open="endOpen" :allowClear="false"
 							@openChange="handleEndOpenChange"
@@ -48,8 +48,8 @@
 				</div>
 				<div>
 					<a-form-model-item label="好友分享标题" extra="图片比例5:4,png/jpg格式,2M以内">
-							<a-input placeholder="输入分享标题(限制20字符)" :maxLength="20" style="width: 30%;"
-								v-model="friend.title" />
+						<a-input placeholder="输入分享标题(限制20字符)" :maxLength="20" style="width: 30%;margin-bottom: 10px;"
+							v-model="friend.title" />
 						<upload-file @uploadPic="uploadFPic" :img="friend.image" v-model="friend.image"></upload-file>
 					</a-form-model-item>
 					<!-- <a-form-model-item label="朋友圈分享" extra="png/jpg格式，2M以内">
@@ -66,7 +66,9 @@
 					</a-form-model-item>
 				</div>
 				<div><span style="color: red;margin-right: 5px;">*</span>权益内容：
-					<UEditor @input="getRule"></UEditor>
+					<!-- <UEditor @input="getRule"></UEditor> -->
+					<a-textarea v-model="formData.content" placeholder="请输入权益内容"
+						:auto-size="{ minRows: 5, maxRows: 50 }" :maxLength="1000"/>
 				</div>
 			</div>
 			<div class="title">奖励设置</div>
@@ -142,7 +144,7 @@
 
 <script>
 	import uploadFile from "../../components/UploadFile"
-	import UEditor from "../../components/UEditor.vue"
+	// import UEditor from "../../components/UEditor.vue"
 	import oldMember from "./oldMember.vue"
 	import moment from 'moment'
 	import {
@@ -152,7 +154,7 @@
 		name: 'clubFission',
 		components: {
 			uploadFile,
-			UEditor,
+			// UEditor,
 			oldMember
 		},
 		// props: {
@@ -230,14 +232,15 @@
 			disabledStartDate(startValue) {
 				const endValue = this.formData.endDate;
 				if (!startValue || !endValue) {
-					return startValue && startValue < (moment().endOf('day') - 1000*3600*24);
+					return startValue && startValue < (moment().endOf('day') - 1000 * 3600 * 24);
 				}
-				return startValue.valueOf() > endValue.valueOf() || (startValue && startValue < (moment().endOf('day') - 1000*3600*24))
+				return startValue.valueOf() > endValue.valueOf() || (startValue && startValue < (moment().endOf('day') -
+					1000 * 3600 * 24))
 			},
 			disabledEndDate(endValue) {
 				const startValue = this.formData.startDate;
 				if (!endValue || !startValue) {
-					return endValue && endValue < (moment().endOf('day') - 1000*3600*24);
+					return endValue && endValue < (moment().endOf('day') - 1000 * 3600 * 24);
 				}
 				return startValue.valueOf() > endValue.valueOf();
 			},
@@ -432,9 +435,9 @@
 			 * @param {Object} content
 			 * 获取权益内容
 			 */
-			getRule(content) {
-				this.formData.content = content.content || ''
-			},
+			// getRule(content) {
+			// 	this.formData.content = content.content || ''
+			// },
 			/**
 			 * 新用户奖励切换触发
 			 */
@@ -563,11 +566,7 @@
 	}
 </script>
 
-<style scoped>
-	div {
-		margin-top: 10px;
-	}
-
+<style>
 	.title {
 		margin-bottom: 10px;
 		font-size: initial;
@@ -582,5 +581,9 @@
 
 	.award-set-detail {
 		padding-left: 40px;
+	}
+
+	.has-error .ant-form-explain {
+		text-align: left;
 	}
 </style>
