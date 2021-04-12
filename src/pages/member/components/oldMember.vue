@@ -13,7 +13,8 @@
 				</a-radio-group>
 			</a-form-model-item>
 		</div>
-		<div class="award-set-detail" style="border: 1px solid #3A87AD;padding-top: 10px;border-radius: 10px;" v-if="awardOne">
+		<div class="award-set-detail" style="border: 1px solid #3A87AD;padding-top: 10px;border-radius: 10px;"
+			v-if="awardOne">
 			<p style="color: red;display: flex;justify-content: space-between;align-items: center;">
 				<span>*奖励所有设置均为必填项</span>
 				<a-icon type="close-circle" style="margin-right: 15px;font-size: 20px;cursor: pointer;"
@@ -72,11 +73,14 @@
 				</div>
 			</div>
 			<a-form-model-item label="礼品卡图片" extra="图片比例1:1,png/jpg格式,2M以内" v-if="oldInvite.typeOn == 3">
-				<upload-file @uploadPic="uploadPicOn" :img="oldInvite.imageOn" v-model="oldInvite.imageOn" v-if="oldLevel == 1">
+				<upload-file @uploadPic="uploadPicOn" :img="oldInvite.imageOn" v-model="oldInvite.imageOn"
+					v-if="oldLevel == 1">
 				</upload-file>
-				<upload-file @uploadPic="uploadPicTw" :img="oldInvite.imageTw" v-model="oldInvite.imageTw" v-if="oldLevel == 2">
+				<upload-file @uploadPic="uploadPicTw" :img="oldInvite.imageTw" v-model="oldInvite.imageTw"
+					v-if="oldLevel == 2">
 				</upload-file>
-				<upload-file @uploadPic="uploadPicTh" :img="oldInvite.imageTh" v-model="oldInvite.imageTh" v-if="oldLevel == 3">
+				<upload-file @uploadPic="uploadPicTh" :img="oldInvite.imageTh" v-model="oldInvite.imageTh"
+					v-if="oldLevel == 3">
 				</upload-file>
 				<p style="color: red;" v-show="warn.warnImg">请上传礼品卡图片</p>
 			</a-form-model-item>
@@ -156,11 +160,11 @@
 			validate() {
 				if (this.oldInvite.nameOn == '') this.warn.warnName = true
 				if (this.oldInvite.peopleOn == '') this.warn.warnPeople = true
-				if (this.oldInvite.typeOn == 3){
-					if(this.oldLevel == 1 && this.oldInvite.imageOn == '') this.warn.warnImg = true
-					if(this.oldLevel == 2 && this.oldInvite.imageTw == '') this.warn.warnImg = true
-					if(this.oldLevel == 3 && this.oldInvite.imageTh == '') this.warn.warnImg = true
-				} 
+				if (this.oldInvite.typeOn == 3) {
+					if (this.oldLevel == 1 && this.oldInvite.imageOn == '') this.warn.warnImg = true
+					if (this.oldLevel == 2 && this.oldInvite.imageTw == '') this.warn.warnImg = true
+					if (this.oldLevel == 3 && this.oldInvite.imageTh == '') this.warn.warnImg = true
+				}
 				//判断奖励类型是否添加
 				if (this.oldInvite.typeOn == '2') {
 					if (this.oldJF == '') this.warn.warnJF = true
@@ -329,9 +333,21 @@
 			},
 			imageThWarn() {
 				return this.oldInvite.imageTh
+			},
+			isNjf() {
+				return this.oldInvite.peopleOn
+			},
+			isNold() {
+				return this.oldJF
 			}
 		},
 		watch: {
+			isNold(n) {
+				if (isNaN(n)) this.oldJF = ''
+			},
+			isNjf(n) {
+				if (isNaN(n)) this.oldInvite.peopleOn = ''
+			},
 			imageOnWarn(v) {
 				if (v != '') this.warn.warnImg = false
 			},

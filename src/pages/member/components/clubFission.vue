@@ -67,8 +67,9 @@
 				</div>
 				<div><span style="color: red;margin-right: 5px;">*</span>权益内容：
 					<!-- <UEditor @input="getRule"></UEditor> -->
-					<a-textarea v-model="formData.content" placeholder="请输入权益内容"
+					<a-textarea v-model="formData.content" placeholder="请输入权益内容(限制1000字)"
 						:auto-size="{ minRows: 5, maxRows: 50 }" :maxLength="1000"/>
+					<div style="color: rgba(152,152,152,1);">剩余可输入<span style="color: #000000;">{{contentNumber}}</span>字</div>
 				</div>
 			</div>
 			<div class="title">奖励设置</div>
@@ -166,6 +167,7 @@
 		// },
 		data() {
 			return {
+				contentNumber:1000,
 				closeB: false,
 				isshowAdd: true,
 				clubFissionVisible: true,
@@ -534,11 +536,23 @@
 			},
 		},
 		computed: {
+			isNjf(){
+				return this.formData.newJF
+			},
+			getContent(){
+				return this.formData.content
+			}
 			// isShowAddAward(){
 			// 	return this.theOldTwo || this.theOldThree
 			// }
 		},
 		watch: {
+			getContent(n){
+				this.contentNumber = 1000 - n.length
+			},
+			isNjf(n){
+				if(isNaN(n)) this.formData.newJF = ''
+			},
 			theOldTwo() {
 				if (this.theOldTwo == true && this.theOldThree == true) {
 					this.isshowAdd = false
