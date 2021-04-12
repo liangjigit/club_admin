@@ -60,6 +60,7 @@
 					<p style="color: red;margin-top: 5px;" v-show="warn.warnJF">请输入积分</p>
 				</div>
 				<div v-show="oldInvite.typeOn == 1 || oldInvite.typeOn == 3">
+					<div style="color: red;margin-bottom: 10px;" v-show="oldInvite.typeOn == 1">*优惠券必须为满减券</div>
 					<a-input :placeholder="oldInvite.typeOn == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20"
 						style="width: 30%;" v-model="oldPCH" @blur="blurValidate(3)" />
 					<a-button type="primary" @click="addNewId" style="margin-left:10px">

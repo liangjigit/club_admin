@@ -48,9 +48,8 @@
 					</a-form-model-item>
 				</div>
 				<div>权益内容：
-					<a-tag color="#1890ff">
-						<div v-html="awardList.content"></div>
-					</a-tag>
+					<div style="background-color: #1890ff;color: #ffffff;padding: 5px;border-radius: 5px;"
+						v-html="awardList.content"></div>
 				</div>
 			</div>
 			<div class="title">奖励设置</div>

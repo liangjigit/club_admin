@@ -104,6 +104,7 @@
 					</div>
 					<div v-if="formData.newCouponId == null">
 						<div v-show="formData.newAward == 1 || formData.newAward == 3">
+							<div style="color: red;margin-bottom: 10px;" v-show="formData.newAward == 1">*优惠券必须为满减券</div>
 							<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20"
 								style="width: 30%;" v-model="formData.newPCH" />
 							<a-button type="primary" @click="addNewId" style="margin-left:10px">

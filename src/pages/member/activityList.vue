@@ -87,7 +87,7 @@
 					{
 						dataIndex: 'isshow',
 						key: 'isshow',
-						title: '是否展示CLUB',
+						title: '是否club展示',
 						scopedSlots: {
 							customRender: 'isshow'
 						}
