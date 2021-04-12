@@ -9,9 +9,16 @@
 				<span v-if="text == 3">已关闭</span>
 			</span>
 			<template slot="action" slot-scope="text, record">
-				<a-button type="link" @click="closeActivity(record)">
-					关闭
-				</a-button>
+				<template v-if="record.status == 0 || record.status == 1">
+					<a-button type="link" @click="closeActivity(record)">
+						关闭
+					</a-button>
+				</template>
+				<template v-else>
+					<a-button type="link" disabled>
+						关闭
+					</a-button>
+				</template>
 				<a-divider type="vertical" />
 				<template v-if="record.status != 0">
 					<a-button type="link" @click="exportExcel(record)" :loading="exportLoading">
@@ -124,9 +131,9 @@
 				awardShow: false,
 				pagination: {
 					pageSize: 10,
-					total:0,
-					showTotal:total => `总计${total}条数据`,
-					showSizeChanger:true
+					total: 0,
+					showTotal: total => `总计${total}条数据`,
+					showSizeChanger: true
 				}
 			}
 		},
