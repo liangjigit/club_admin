@@ -65,9 +65,11 @@
 						</upload-file>
 					</a-form-model-item>
 				</div>
-				<div><span style="color: red;margin-right: 5px;">*</span>权益内容：
+				<div>
+					<!-- <span style="color: red;margin-right: 5px;">*</span> -->
+					规则内容：
 					<!-- <UEditor @input="getRule"></UEditor> -->
-					<a-textarea v-model="formData.content" placeholder="请输入权益内容(限制1000字)"
+					<a-textarea v-model="formData.content" placeholder="请输入规则内容(限制1000字)"
 						:auto-size="{ minRows: 5, maxRows: 50 }" :maxLength="1000"/>
 					<div style="color: rgba(152,152,152,1);">剩余可输入<span style="color: #000000;">{{contentNumber}}</span>字</div>
 				</div>
@@ -89,9 +91,9 @@
 								<a-radio value="2">
 									积分
 								</a-radio>
-								<a-radio value="3">
+								<!-- <a-radio value="3">
 									礼品卡
-								</a-radio>
+								</a-radio> -->
 							</a-radio-group>
 							<div v-if="isRemove">
 								<p style="color: red;" v-if="formData.newTemplateList">
@@ -273,12 +275,12 @@
 				this.$refs.ruleForm.validate(valid => {
 					if (valid) {
 						console.log('submit')
-						if (this.formData.content == '') {
-							this.$message.error({
-								content: "权益内容不能为空！",
-							})
-							return false
-						}
+						// if (this.formData.content == '') {
+						// 	this.$message.error({
+						// 		content: "权益内容不能为空！",
+						// 	})
+						// 	return false
+						// }
 						this.validateNew()
 					} else {
 						console.log('error submit!!');
