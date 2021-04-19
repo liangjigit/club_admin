@@ -48,8 +48,9 @@
 					</a-form-model-item>
 				</div>
 				<div>权益内容：
-					<div style="background-color: #1890ff;color: #ffffff;padding: 5px;border-radius: 5px;"
-						v-html="awardList.content"></div>
+					<div style="background-color: #1890ff;color: #ffffff;padding: 5px;border-radius: 5px;">
+						<pre style="width: 100%; white-space: pre-wrap;word-wrap: break-word;">{{awardList.content}}</pre>
+					</div>
 				</div>
 			</div>
 			<div class="title">奖励设置</div>
@@ -248,7 +249,7 @@
 			if (this.oldCouponList[0]) this.oldListOn = JSON.parse(this.oldCouponList[0].couponList)
 			if (this.oldCouponList[1]) this.oldListTw = JSON.parse(this.oldCouponList[1].couponList)
 			if (this.oldCouponList[2]) this.oldListTh = JSON.parse(this.oldCouponList[2].couponList)
-			// console.log(this.oldListOn)
+			console.log(this.awardList.content)
 		},
 		methods: {
 			//退出
