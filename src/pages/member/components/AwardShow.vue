@@ -249,7 +249,7 @@
 			if (this.oldCouponList[0]) this.oldListOn = JSON.parse(this.oldCouponList[0].couponList)
 			if (this.oldCouponList[1]) this.oldListTw = JSON.parse(this.oldCouponList[1].couponList)
 			if (this.oldCouponList[2]) this.oldListTh = JSON.parse(this.oldCouponList[2].couponList)
-			console.log(this.awardList.content)
+			// console.log(this.awardList.content)
 		},
 		methods: {
 			//退出

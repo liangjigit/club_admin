@@ -18,7 +18,7 @@
 					</a-select>
 				</div>
 				<a-form-model-item label="活动名称" ref="activeName" prop="activeName" style="margin-bottom: 10px;">
-					<a-input placeholder="输入活动名称(限制50字符)" :maxLength="50" style="width: 50%;"
+					<a-input placeholder="输入活动名称(限制20字符)" :maxLength="20" style="width: 50%;"
 						v-model="formData.activeName" @blur="()=>{$refs.activeName.onFieldBlur()}" />
 				</a-form-model-item>
 				<div style="display: flex;">
