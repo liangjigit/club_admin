@@ -47,9 +47,16 @@
 						<img v-if="awardList.themeBg != null" :src="awardList.themeBg" :width="320" alt="图片加载失败" />
 					</a-form-model-item>
 				</div>
-				<div>权益内容：
-					<div style="background-color: #1890ff;color: #ffffff;padding: 5px;border-radius: 5px;">
-						<pre style="width: 100%; white-space: pre-wrap;word-wrap: break-word;">{{awardList.content}}</pre>
+				<div>规则内容：
+					<div style="background-color: #1890ff;color: #ffffff;padding: 5px;border-radius: 5px;"
+						v-if="awardList.content != null">
+						<pre style="width: 100%; white-space: pre-wrap;word-wrap: break-word;">{{awardList.content}}
+						</pre>
+					</div>
+					<div v-else>
+						<a-tag color="#1890ff">
+							未设置规则内容
+						</a-tag>
 					</div>
 				</div>
 			</div>
@@ -81,6 +88,11 @@
 					</div>
 				</div>
 				<div class="award-set">老会员奖励:</div>
+				<div class="award-set">是否限次：
+					<a-tag color="#1890ff">
+						{{awardList.timeLimit == 1 ? '限次' : '不限次'}}
+					</a-tag>
+				</div>
 				<div class="award-set-detail">
 					<div v-if="oldCouponList[0]">
 						<div v-if="oldCouponList[0].rewardType == 1" class="old-border">
