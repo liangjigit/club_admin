@@ -10,9 +10,13 @@
 			</span>
 			<template slot="action" slot-scope="text, record">
 				<template v-if="record.status == 0 || record.status == 1">
-					<a-button type="link" @click="closeActivity(record)">
+					<a-button type="link" @click="visible = true">
 						关闭
 					</a-button>
+					<a-modal title="提示" :visible="visible" centered :mask="false" @ok="closeActivity(record)"
+						@cancel="visible = false">
+						<p>确认关闭当前活动？</p>
+					</a-modal>
 				</template>
 				<template v-else>
 					<a-button type="link" disabled>
@@ -51,6 +55,7 @@
 		},
 		data() {
 			return {
+				visible: false,
 				columns: [{
 						dataIndex: 'number',
 						key: 'number',
@@ -152,7 +157,7 @@
 								id: record.activeId
 							})
 							if (response.code == 200) {
-								console.log(response)
+								// console.log(response)
 								this.$set(this, 'awardList', response.data)
 								this.awardShow = true
 							}
@@ -166,7 +171,7 @@
 					pageNum,
 					pageSize
 				})
-				console.log(res)
+				// console.log(res)
 				if (res.code == 200) {
 					this.initData = res.data
 					this.activeData = res.data.list.map((item, index) => {
@@ -181,20 +186,22 @@
 						}
 					})
 					this.pagination.total = this.activeData.length
-					console.log(this.activeData)
+					// console.log(this.activeData)
 				}
 			},
 			//关闭正在进行的活动
 			async closeActivity(record) {
+				this.visible = false
 				const {
 					activeId
 				} = record
+				// console.log('activeid', activeId)
 				const response = await this.closeFriendFission({
 					id: activeId,
 					activeStatus: 3
 				})
 				if (response.code == 200) {
-					this.getConfig(1, 100)
+					this.getConfig(1, 1000)
 				}
 			},
 			//导出excel

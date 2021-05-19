@@ -70,8 +70,9 @@
 					规则内容：
 					<!-- <UEditor @input="getRule"></UEditor> -->
 					<a-textarea v-model="formData.content" placeholder="请输入规则内容(限制1000字)"
-						:auto-size="{ minRows: 5, maxRows: 50 }" :maxLength="1000"/>
-					<div style="color: rgba(152,152,152,1);">剩余可输入<span style="color: #000000;">{{contentNumber}}</span>字</div>
+						:auto-size="{ minRows: 5, maxRows: 50 }" :maxLength="1000" />
+					<div style="color: rgba(152,152,152,1);">剩余可输入<span
+							style="color: #000000;">{{contentNumber}}</span>字</div>
 				</div>
 			</div>
 			<div class="title">奖励设置</div>
@@ -107,7 +108,8 @@
 					</div>
 					<div v-if="formData.newCouponId == null">
 						<div v-show="formData.newAward == 1 || formData.newAward == 3">
-							<div style="color: red;margin-bottom: 10px;" v-show="formData.newAward == 1">*优惠券必须为满减券</div>
+							<div style="color: red;margin-bottom: 10px;" v-show="formData.newAward == 1">*优惠券必须为满减券
+							</div>
 							<a-input :placeholder="formData.newAward == 1 ? '输入优惠券批次号' : '输入礼品卡批次号'" :maxLength="20"
 								style="width: 30%;" v-model="formData.newPCH" />
 							<a-button type="primary" @click="addNewId" style="margin-left:10px">
@@ -169,7 +171,7 @@
 		// },
 		data() {
 			return {
-				contentNumber:1000,
+				contentNumber: 1000,
 				closeB: false,
 				isshowAdd: true,
 				clubFissionVisible: true,
@@ -538,10 +540,10 @@
 			},
 		},
 		computed: {
-			isNjf(){
+			isNjf() {
 				return this.formData.newJF
 			},
-			getContent(){
+			getContent() {
 				return this.formData.content
 			}
 			// isShowAddAward(){
@@ -549,11 +551,11 @@
 			// }
 		},
 		watch: {
-			getContent(n){
+			getContent(n) {
 				this.contentNumber = 1000 - n.length
 			},
-			isNjf(n){
-				if(isNaN(n)) this.formData.newJF = ''
+			isNjf(n) {
+				if (isNaN(n)) this.formData.newJF = ''
 			},
 			theOldTwo() {
 				if (this.theOldTwo == true && this.theOldThree == true) {
@@ -584,6 +586,10 @@
 </script>
 
 <style>
+	.ant-calendar-today-btn {
+		display: none;
+	}
+
 	.title {
 		margin-bottom: 10px;
 		font-size: initial;
