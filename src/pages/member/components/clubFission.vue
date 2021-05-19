@@ -587,7 +587,7 @@
 
 <style>
 	.ant-calendar-today-btn {
-		display: none;
+		display: none !important;
 	}
 
 	.title {
