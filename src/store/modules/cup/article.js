@@ -69,6 +69,21 @@ const actions = {
     }
     return response;
   },
+	//置顶
+	async changeTop({
+		commit
+	}, payload) {
+		console.log(commit)
+		const {
+			articleId
+		} = payload
+		const response = (await request({
+			url: '/content/miniapp/cup/articleTop?articleId=' + articleId,
+			method: "POST",
+			// data: payload
+		})).data
+		return response
+	},
   // 获取文章列表
   // type 为 0 表示cup , type 为 1 表示 brarts 。
   async getArticles({ commit }, payload) {

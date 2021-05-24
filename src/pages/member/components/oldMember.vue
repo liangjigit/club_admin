@@ -56,7 +56,7 @@
 			</div>
 			<div v-if="couponId == null" style="margin-bottom: 10px;">
 				<div v-show="oldInvite.typeOn == 2">
-					<a-input placeholder="输入积分" :maxLength="2" style="width: 30%;" v-model="oldJF"
+					<a-input placeholder="输入积分" :maxLength="3" style="width: 30%;" v-model="oldJF"
 						@blur="blurValidate(3)" />
 					<p style="color: red;margin-top: 5px;" v-show="warn.warnJF">请输入积分</p>
 				</div>
