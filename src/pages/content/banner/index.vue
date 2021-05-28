@@ -50,7 +50,7 @@
       </template>
       <span slot="bannerSort" slot-scope="text, record">
         <editable-cell
-          :text="text"
+          :text="Number(text)"
           @change="onCellChange(record.id, 'bannerSort', $event)"
         />
       </span>
