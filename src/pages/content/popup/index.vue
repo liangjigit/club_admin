@@ -398,12 +398,19 @@
 					id,
 					dataIndex
 				});
+				// console.log(response)
 				if (response.code == 200) {
 					await this.getData();
 					this.$message.success({
 						content: "修改成功",
 						key: dataIndex,
 						duration: 2
+					});
+				} else if (response.code == 2102) {
+					this.$message.error({
+						content: response.msg + ',当前类型弹框只能上架一个',
+						key: dataIndex,
+						duration: 3
 					});
 				}
 			},
