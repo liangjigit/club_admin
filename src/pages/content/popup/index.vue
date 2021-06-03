@@ -85,7 +85,7 @@
 					</a-radio-group>
 				</a-form-model-item>
 				<a-form-model-item label="弹窗标题" prop="title">
-					<a-input v-model="form.title" placeholder="请输入弹窗标题" style="width:70%;" />
+					<a-input v-model="form.title" placeholder="请输入弹窗标题" style="width:70%;" :maxLength="10" />
 				</a-form-model-item>
 				<a-form-model-item label="弹窗图片" prop="image" extra="560*700px，png/jpg格式，2M以内">
 					<upload-file @uploadPic="uploadPopupImg" v-model="form.image" :img="form.image" :imgWidth="280"
@@ -117,7 +117,7 @@
 					<a-range-picker v-model="form.validTime" :show-time="{ defaultValue: [
 				        moment('00:00:00', 'HH:mm:ss'),
 				        moment('23:59:59', 'HH:mm:ss')
-				      ] }" format="YYYY-MM-DD HH:mm:00" :placeholder="['上架时间', '下架时间']" @ok="confirmValidTime">
+				      ] }" format="YYYY-MM-DD HH:mm:ss" :placeholder="['上架时间', '下架时间']" @ok="confirmValidTime">
 						<a-icon slot="suffixIcon" type="clock-circle" />
 					</a-range-picker>
 				</a-form-model-item>
@@ -406,9 +406,9 @@
 						key: dataIndex,
 						duration: 2
 					});
-				} else if (response.code == 2102) {
+				} else {
 					this.$message.error({
-						content: response.msg + ',当前类型弹框只能上架一个',
+						content: response.msg,
 						key: dataIndex,
 						duration: 3
 					});
@@ -482,6 +482,7 @@
 				let paramsObj = null
 				if (this.popType === 'loginPop') {
 					paramsObj = {
+						popType: 1,
 						title,
 						image,
 						linkType,
@@ -600,7 +601,8 @@
 					miniappId: "",
 					miniappUrl: ""
 				};
-				this.visible = true;
+				this.isAddPop = true
+				this.visible = true
 			},
 			//   上传产品图片
 			uploadPopupImg(option) {
