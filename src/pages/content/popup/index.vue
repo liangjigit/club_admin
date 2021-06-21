@@ -87,7 +87,7 @@
 				<a-form-model-item label="弹窗标题" prop="title">
 					<a-input v-model="form.title" placeholder="请输入弹窗标题" style="width:70%;" :maxLength="10" />
 				</a-form-model-item>
-				<a-form-model-item label="弹窗图片" prop="image" extra="560*700px，png/jpg格式，2M以内">
+				<a-form-model-item label="弹窗图片" prop="image" :extra="imgStr">
 					<upload-file @uploadPic="uploadPopupImg" v-model="form.image" :img="form.image" :imgWidth="280"
 						:imgHeight="350">
 					</upload-file>
@@ -244,6 +244,7 @@
 			return {
 				isAddPop: true,
 				popType: 'loginPop',
+				imgStr: '560*700px，png/jpg格式，2M以内',
 				locale,
 				popupStatus: PopupStatus,
 				displayPage: DisplayPage,
@@ -308,6 +309,19 @@
 					}]
 				}
 			};
+		},
+		watch: {
+			popType: {
+				handler(val) {
+					if ('marketPop' == val) {
+						this.imgStr = '586*828px，png/jpg格式，2M以内'
+					} else {
+						this.imgStr = '560*700px，png/jpg格式，2M以内'
+					}
+				},
+				immediate: true,
+				deep: true
+			}
 		},
 		computed: {
 			...mapState("popup", {

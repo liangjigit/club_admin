@@ -20,7 +20,7 @@ const actions = {
     ).data;
     if (response.code == 200) {
       let { list: popupList, pageNum, pageSize, totalSize } = response.data;
-      console.log(popupList);
+      // console.log(popupList);
       commit("GETPOPUPS", { popupList, pageNum, pageSize, totalSize });
     }
     return response;
